@@ -42,7 +42,7 @@ export function calculateStats(rows: string[][], company: string): Stats {
     (has('Piccoo') ? maxScore('Piccoo') * 10 : 0) +
     (has('Fietsen') ? minScore('Fietsen') : 0);
 
-  const totaal = bonus - straf;
+  const totaal = straf - bonus;
 
   return { bonus, straf, totaal };
 }
