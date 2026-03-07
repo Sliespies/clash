@@ -140,7 +140,7 @@ export default function EventsScreen({
 
       const done = new Set<string>();
       for (const row of rows) {
-        if (row[0] === company && row[2]) {
+        if (row[0] === company && row[1] === userName && row[2]) {
           done.add(row[2]);
         }
       }
