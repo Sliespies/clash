@@ -18,5 +18,5 @@ export const EVENTS: GameEvent[] = [
   { name: 'Piccoo', type: 'number', label: 'Getikten', desc: 'Voer het aantal getikten in', icon: '👆' },
   { name: 'MakeyMakey', type: 'number', label: 'Score', desc: 'Voer je score in', icon: '🎹' },
   { name: 'Streetracket', type: 'number', label: 'Gescoorde ballen', desc: 'Voer het aantal gescoorde ballen in', icon: '🏓' },
-  { name: 'Roeien', type: 'time', label: 'Tijd (seconden)', desc: 'Voer de roeitijd in (seconden)', icon: '🚣', shared: true },
+  { name: 'Roeien', type: 'number', label: 'Afstand (meter)', desc: 'Voer de afstand in (meter)', icon: '🚣', shared: true },
 ];
