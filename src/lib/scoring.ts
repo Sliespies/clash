@@ -29,7 +29,6 @@ export function calculateStats(rows: string[][], company: string): Stats {
   const has = (ev: string) => !!byEvent[ev];
 
   const bonus =
-    (has('Fietsen') ? minScore('Fietsen') : 0) +
     (has('Axethrowing') ? maxScore('Axethrowing') : 0) +
     (has('VR') ? maxScore('VR') * 30 + uniqueNames('VR') * 30 : 0) +
     (has('Icaros') ? 30 * (maxScore('Icaros') + uniqueNames('Icaros')) : 0) +
@@ -40,7 +39,8 @@ export function calculateStats(rows: string[][], company: string): Stats {
 
   const straf =
     (has('Blazepods') ? minScore('Blazepods') : 0) +
-    (has('Piccoo') ? maxScore('Piccoo') * 10 : 0);
+    (has('Piccoo') ? maxScore('Piccoo') * 10 : 0) +
+    (has('Fietsen') ? minScore('Fietsen') : 0);
 
   const totaal = bonus - straf;
 
