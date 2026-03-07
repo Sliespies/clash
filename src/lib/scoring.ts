@@ -35,7 +35,8 @@ export function calculateStats(rows: string[][], company: string): Stats {
     (has('Firewall') ? Math.min(maxScore('Firewall') * 10, 90) : 0) +
     (has('MakeyMakey') ? (maxScore('MakeyMakey') > 0 ? 30 : 0) : 0) +
     (has('Streetracket') ? maxScore('Streetracket') * 30 + 30 : 0) +
-    (has('Copycat') ? maxScore('Copycat') : 0);
+    (has('Copycat') ? maxScore('Copycat') : 0) +
+    (has('Roeien') ? Math.floor(maxScore('Roeien') / 5) : 0);
 
   const straf =
     (has('Blazepods') ? minScore('Blazepods') : 0) +
