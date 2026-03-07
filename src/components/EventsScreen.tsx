@@ -32,7 +32,7 @@ function ScoreInput({
   onBack: () => void;
   completed: boolean;
 }) {
-  const { value, setValue, saving, error, sharedInfo, loadingShared, handleSave } =
+  const { value, setValue, saving, error, existingInfo, loading, handleSave } =
     useScoreEntry({ event, company, userName });
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -55,15 +55,9 @@ function ScoreInput({
       <h2 className="text-lg font-semibold text-gray-900 mb-1">{event.name}</h2>
       <p className="text-sm text-gray-400 mb-5">{event.desc}</p>
 
-      {completed && (
-        <div className="bg-emerald-50 text-emerald-600 text-xs rounded-full px-4 py-1.5 mb-3">
-          Al ingevuld — pas aan indien nodig
-        </div>
-      )}
-
-      {sharedInfo && (
+      {existingInfo && (
         <div className="bg-amber-50 border border-amber-200 text-amber-700 text-xs rounded-xl px-4 py-2 mb-3 w-full">
-          {sharedInfo}
+          {existingInfo}
         </div>
       )}
 
@@ -81,12 +75,12 @@ function ScoreInput({
           placeholder="0"
           min="0"
           inputMode="numeric"
-          disabled={loadingShared}
+          disabled={loading}
           className="!text-2xl !h-14 text-center font-medium"
         />
       </div>
 
-      {loadingShared && (
+      {loading && (
         <p className="text-gray-400 text-sm mt-1">Score ophalen...</p>
       )}
 
@@ -98,7 +92,7 @@ function ScoreInput({
         </Button>
         <Button
           variant="success"
-          disabled={saving || loadingShared}
+          disabled={saving || loading}
           onClick={onSave}
           className="!w-auto flex-[2]"
         >
@@ -140,8 +134,11 @@ export default function EventsScreen({
 
       const done = new Set<string>();
       for (const row of rows) {
-        if (row[0] === company && row[1] === userName && row[2]) {
-          done.add(row[2]);
+        if (row[0] === company && row[2]) {
+          // Roeien is shared (per company), others are per person
+          if (row[2] === 'Roeien' || row[1] === userName) {
+            done.add(row[2]);
+          }
         }
       }
       setCompletedEvents(done);

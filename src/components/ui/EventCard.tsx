@@ -34,7 +34,7 @@ export default function EventCard({
   const expandRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { value, setValue, saving, error, sharedInfo, loadingShared, handleSave } =
+  const { value, setValue, saving, error, existingInfo, loading, handleSave } =
     useScoreEntry({ event, company, userName });
 
   useEffect(() => {
@@ -69,9 +69,9 @@ export default function EventCard({
         </div>
 
         <div ref={expandRef} className="overflow-hidden">
-          {sharedInfo && (
+          {existingInfo && (
             <div className="bg-amber-50 border border-amber-200 text-amber-700 text-xs rounded-lg px-3 py-2 mb-3">
-              {sharedInfo}
+              {existingInfo}
             </div>
           )}
 
@@ -88,7 +88,7 @@ export default function EventCard({
             placeholder="0"
             min="0"
             inputMode="numeric"
-            disabled={loadingShared}
+            disabled={loading}
             className="!text-lg !h-12 text-center font-medium mb-3"
           />
 
@@ -104,7 +104,7 @@ export default function EventCard({
             </Button>
             <Button
               variant="success"
-              disabled={saving || loadingShared}
+              disabled={saving || loading}
               onClick={onSave}
               className="!w-auto flex-[2]"
             >

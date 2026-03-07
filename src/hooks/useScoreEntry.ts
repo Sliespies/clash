@@ -13,44 +13,46 @@ export function useScoreEntry({ event, company, userName }: UseScoreEntryProps) 
   const [value, setValue] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [sharedInfo, setSharedInfo] = useState('');
-  const [sharedRow, setSharedRow] = useState<number | null>(null);
-  const [loadingShared, setLoadingShared] = useState(false);
+  const [existingInfo, setExistingInfo] = useState('');
+  const [existingRow, setExistingRow] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setValue('');
     setError('');
-    setSharedInfo('');
-    setSharedRow(null);
+    setExistingInfo('');
+    setExistingRow(null);
+    setLoading(true);
 
-    if (event.shared) {
-      setLoadingShared(true);
-      (async () => {
-        try {
-          const res = await fetch('/api/sheets', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'get', range: 'Scores!A:E' }),
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.error);
-          const rows: string[][] = data.values || [];
-          for (let i = 0; i < rows.length; i++) {
-            if (rows[i][0] === company && rows[i][2] === event.name) {
-              setSharedRow(i + 1);
-              setValue(rows[i][3] || '');
-              setSharedInfo('Bestaande score gevonden — pas aan indien nodig');
-              break;
-            }
+    (async () => {
+      try {
+        const res = await fetch('/api/sheets', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get', range: 'Scores!A:E' }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        const rows: string[][] = data.values || [];
+        for (let i = 0; i < rows.length; i++) {
+          const matchesEvent = rows[i][2] === event.name;
+          const matchesCompany = rows[i][0] === company;
+          const matchesUser = rows[i][1] === userName;
+
+          if (matchesEvent && matchesCompany && (event.shared || matchesUser)) {
+            setExistingRow(i + 1);
+            setValue(rows[i][3] || '');
+            setExistingInfo('Bestaande score gevonden — pas aan indien nodig');
+            break;
           }
-        } catch (e) {
-          setError(e instanceof Error ? e.message : 'Kon score niet ophalen');
-        } finally {
-          setLoadingShared(false);
         }
-      })();
-    }
-  }, [event, company]);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Kon score niet ophalen');
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [event, company, userName]);
 
   const handleSave = useCallback(async (): Promise<boolean> => {
     if (!value.trim() || isNaN(Number(value)) || Number(value) < 0) {
@@ -65,13 +67,13 @@ export function useScoreEntry({ event, company, userName }: UseScoreEntryProps) 
       const timestamp = new Date().toLocaleString('nl-BE');
       const row = [company, userName, event.name, Number(value), timestamp];
 
-      if (event.shared && sharedRow) {
+      if (existingRow) {
         await fetch('/api/sheets', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             action: 'update',
-            range: `Scores!A${sharedRow}:E${sharedRow}`,
+            range: `Scores!A${existingRow}:E${existingRow}`,
             values: [row],
           }),
         });
@@ -94,7 +96,7 @@ export function useScoreEntry({ event, company, userName }: UseScoreEntryProps) 
     } finally {
       setSaving(false);
     }
-  }, [value, company, userName, event, sharedRow]);
+  }, [value, company, userName, event, existingRow]);
 
-  return { value, setValue, saving, error, sharedInfo, loadingShared, handleSave };
+  return { value, setValue, saving, error, existingInfo, loading, handleSave };
 }

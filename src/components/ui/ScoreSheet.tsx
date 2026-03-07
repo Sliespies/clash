@@ -23,7 +23,7 @@ export default function ScoreSheet({
   onClose,
   showToast,
 }: ScoreSheetProps) {
-  const { value, setValue, saving, error, sharedInfo, loadingShared, handleSave } =
+  const { value, setValue, saving, error, existingInfo, loading, handleSave } =
     useScoreEntry({ event, company, userName });
 
   const backdropRef = useRef<HTMLDivElement>(null);
@@ -96,9 +96,9 @@ export default function ScoreSheet({
           </div>
         </div>
 
-        {sharedInfo && (
+        {existingInfo && (
           <div className="bg-amber-50 border border-amber-200 text-amber-700 text-xs rounded-xl px-3 py-2 mb-3">
-            {sharedInfo}
+            {existingInfo}
           </div>
         )}
 
@@ -112,11 +112,11 @@ export default function ScoreSheet({
           placeholder="0"
           min="0"
           inputMode="numeric"
-          disabled={loadingShared}
+          disabled={loading}
           className="!text-2xl !h-14 text-center font-medium"
         />
 
-        {loadingShared && (
+        {loading && (
           <p className="text-center text-gray-400 text-sm mt-2">Score ophalen...</p>
         )}
 
@@ -124,7 +124,7 @@ export default function ScoreSheet({
 
         <Button
           variant="success"
-          disabled={saving || loadingShared}
+          disabled={saving || loading}
           onClick={onSave}
           className="mt-4"
         >
