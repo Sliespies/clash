@@ -33,11 +33,11 @@ export function calculateStats(rows: string[][], company: string): Stats {
     (has('Fietsen') ? minScore('Fietsen') : 0) +
     (has('Axethrowing') ? maxScore('Axethrowing') : 0) +
     (has('VR') ? maxScore('VR') * 30 + uniqueNames('VR') * 30 : 0) +
-    (has('Icaros') ? 30 * (maxScore('Icaros') + uniqueNames('Icaros')) : 0);
+    (has('Icaros') ? 30 * (maxScore('Icaros') + uniqueNames('Icaros')) : 0) +
+    (has('Firewall') ? Math.min(maxScore('Firewall') * 10, 90) : 0);
 
   const straf =
     (has('Copycat') ? maxScore('Copycat') : 0) +
-    (has('Firewall') ? Math.min(maxScore('Firewall') * 10, 90) : 0) +
     (has('Piccoo') ? maxScore('Piccoo') * 10 : 0) +
     (has('MakeyMakey') ? (maxScore('MakeyMakey') > 0 ? 30 : 0) : 0) +
     (has('Streetracket') ? maxScore('Streetracket') * 30 + 30 : 0);
