@@ -3,7 +3,7 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import gsap from 'gsap';
 import { EVENTS, type GameEvent } from '@/lib/events';
-import { calculateStats, type Stats } from '@/lib/scoring';
+import { calculateStats, getHighScores, type Stats, type HighScore } from '@/lib/scoring';
 import { useScoreEntry } from '@/hooks/useScoreEntry';
 import { Button, Input, ErrorMessage, StatBox } from '@/components/ui';
 
@@ -113,6 +113,7 @@ export default function EventsScreen({
   const [selectedEvent, setSelectedEvent] = useState<GameEvent | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [completedEvents, setCompletedEvents] = useState<Set<string>>(new Set());
+  const [highScores, setHighScores] = useState<Record<string, HighScore>>({});
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const slideRef = useRef<HTMLDivElement>(null);
@@ -131,6 +132,7 @@ export default function EventsScreen({
       const rows: string[][] = data.values || [];
       const newStats = calculateStats(rows, company);
       setStats(newStats);
+      setHighScores(getHighScores(rows, EVENTS));
 
       const done = new Set<string>();
       for (const row of rows) {
@@ -254,6 +256,7 @@ export default function EventsScreen({
           <div ref={listRef} className="flex flex-wrap gap-2">
             {EVENTS.map((event) => {
               const done = completedEvents.has(event.name);
+              const hs = highScores[event.name];
               return (
                 <button
                   key={event.name}
@@ -266,6 +269,11 @@ export default function EventsScreen({
                 >
                   <span className="text-base">{event.icon}</span>
                   <span className="text-sm font-medium text-gray-800">{event.name}</span>
+                  {hs && (
+                    <span className="text-[0.65rem] text-gray-400">
+                      {hs.score}{event.type === 'time' ? 's' : ''} · {hs.name}
+                    </span>
+                  )}
                   {done && <span className="text-emerald-500 text-xs ml-0.5">✓</span>}
                 </button>
               );

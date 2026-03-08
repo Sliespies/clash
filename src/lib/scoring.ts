@@ -47,3 +47,44 @@ export function calculateStats(rows: string[][], company: string): Stats {
 
   return { bonus, straf, totaal };
 }
+
+export interface HighScore {
+  score: number;
+  name: string;
+  company: string;
+}
+
+export function getHighScores(
+  rows: string[][],
+  events: { name: string; type: 'time' | 'number' }[]
+): Record<string, HighScore> {
+  const result: Record<string, HighScore> = {};
+
+  for (const event of events) {
+    let bestScore: number | null = null;
+    let bestName = '';
+    let bestCompany = '';
+
+    for (const row of rows) {
+      if (row[2] !== event.name) continue;
+      const score = Number(row[3]);
+      if (isNaN(score)) continue;
+
+      const isBetter =
+        bestScore === null ||
+        (event.type === 'time' ? score < bestScore : score > bestScore);
+
+      if (isBetter) {
+        bestScore = score;
+        bestName = row[1];
+        bestCompany = row[0];
+      }
+    }
+
+    if (bestScore !== null) {
+      result[event.name] = { score: bestScore, name: bestName, company: bestCompany };
+    }
+  }
+
+  return result;
+}
