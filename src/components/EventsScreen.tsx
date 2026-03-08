@@ -23,6 +23,7 @@ function ScoreInput({
   onSaved,
   onBack,
   completed,
+  highScore,
 }: {
   event: GameEvent;
   company: string;
@@ -31,6 +32,7 @@ function ScoreInput({
   onSaved: () => void;
   onBack: () => void;
   completed: boolean;
+  highScore?: HighScore;
 }) {
   const { value, setValue, saving, error, existingInfo, loading, handleSave } =
     useScoreEntry({ event, company, userName });
@@ -58,6 +60,12 @@ function ScoreInput({
       {existingInfo && (
         <div className="bg-amber-50 border border-amber-200 text-amber-700 text-xs rounded-xl px-4 py-2 mb-3 w-full">
           {existingInfo}
+        </div>
+      )}
+
+      {highScore && (
+        <div className="bg-indigo-50 text-indigo-600 text-xs rounded-xl px-4 py-2 mb-3 w-full">
+          Highscore: {highScore.score}{event.type === 'time' ? 's' : ''} — {highScore.name} ({highScore.company})
         </div>
       )}
 
@@ -256,7 +264,6 @@ export default function EventsScreen({
           <div ref={listRef} className="flex flex-wrap gap-2">
             {EVENTS.map((event) => {
               const done = completedEvents.has(event.name);
-              const hs = highScores[event.name];
               return (
                 <button
                   key={event.name}
@@ -269,11 +276,6 @@ export default function EventsScreen({
                 >
                   <span className="text-base">{event.icon}</span>
                   <span className="text-sm font-medium text-gray-800">{event.name}</span>
-                  {hs && (
-                    <span className="text-[0.65rem] text-gray-400">
-                      {hs.score}{event.type === 'time' ? 's' : ''} · {hs.name}
-                    </span>
-                  )}
                   {done && <span className="text-emerald-500 text-xs ml-0.5">✓</span>}
                 </button>
               );
@@ -302,6 +304,7 @@ export default function EventsScreen({
             onSaved={handleSaved}
             onBack={backToList}
             completed={completedEvents.has(selectedEvent.name)}
+            highScore={highScores[selectedEvent.name]}
           />
         </div>
       )}
