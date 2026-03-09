@@ -139,7 +139,8 @@ function TimerStopInput({
   }, []);
 
   const onSave = async () => {
-    if (value.trim().toLowerCase() !== 'samen sterk') {
+    const normalized = value.trim().toLowerCase().replace(/\s+/g, '');
+    if (normalized !== 'samensterk') {
       setError('Fout wachtwoord!');
       return;
     }
