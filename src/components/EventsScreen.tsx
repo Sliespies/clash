@@ -473,10 +473,6 @@ export default function EventsScreen({
             </button>
           </div>
 
-          <Button variant="secondary" onClick={onDone} className="mt-6">
-            Klaar
-          </Button>
-
           <button
             onClick={onBack}
             className="w-full text-center text-gray-400 text-[0.85rem] mt-3 cursor-pointer bg-transparent border-none hover:text-gray-600 transition-colors"
