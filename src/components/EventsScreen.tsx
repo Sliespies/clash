@@ -448,56 +448,60 @@ export default function EventsScreen({
               <div id="stat-final-totaal" className="text-3xl font-bold text-indigo-600 tabular-nums">{formatTime(stats.finalTotaal)}</div>
               <div className="text-xs text-indigo-300 mt-1">Timer {stats.timer}s + Straf {stats.straf}s − Bonus {stats.bonus}s</div>
             </div>
-          ) : stats ? (
-            <StatBox
-              ref={statsRef}
-              items={[
-                { label: 'Bonus', value: `${stats.bonus}s`, id: 'stat-bonus', color: 'green' },
-                { label: 'Straf', value: `${stats.straf}s`, id: 'stat-straf', color: 'red' },
-                { label: 'Totaal', value: formatTime(stats.totaal), id: 'stat-totaal', color: 'indigo' },
-              ]}
-            />
-          ) : null}
+          ) : (
+            <>
+              {stats ? (
+                <StatBox
+                  ref={statsRef}
+                  items={[
+                    { label: 'Bonus', value: `${stats.bonus}s`, id: 'stat-bonus', color: 'green' },
+                    { label: 'Straf', value: `${stats.straf}s`, id: 'stat-straf', color: 'red' },
+                    { label: 'Totaal', value: formatTime(stats.totaal), id: 'stat-totaal', color: 'indigo' },
+                  ]}
+                />
+              ) : null}
 
-          <p className="text-center text-gray-400 text-sm mb-3">
-            Kies een activiteit ({completedEvents.size}/{EVENTS.length})
-          </p>
+              <p className="text-center text-gray-400 text-sm mb-3">
+                Kies een activiteit ({completedEvents.size}/{EVENTS.length})
+              </p>
 
-          <div ref={listRef} className="flex flex-wrap gap-2">
-            {EVENTS.map((event) => {
-              const done = completedEvents.has(event.name);
-              return (
+              <div ref={listRef} className="flex flex-wrap gap-2">
+                {EVENTS.map((event) => {
+                  const done = completedEvents.has(event.name);
+                  return (
+                    <button
+                      key={event.name}
+                      onClick={() => selectEvent(event)}
+                      className={`flex items-center gap-2 px-3.5 py-2.5 rounded-full text-left transition-all cursor-pointer border-none ${
+                        done
+                          ? 'bg-emerald-50 hover:bg-emerald-100'
+                          : 'bg-gray-50 hover:bg-gray-100'
+                      }`}
+                    >
+                      <span className="text-base">{event.icon}</span>
+                      <span className="text-sm font-medium text-gray-800">{event.name}</span>
+                      {done && <span className="text-emerald-500 text-xs ml-0.5">✓</span>}
+                      {done && <span className="text-emerald-400 text-[0.65rem] ml-0.5">Verbeter de high score</span>}
+                    </button>
+                  );
+                })}
                 <button
-                  key={event.name}
-                  onClick={() => selectEvent(event)}
-                  className={`flex items-center gap-2 px-3.5 py-2.5 rounded-full text-left transition-all cursor-pointer border-none ${
-                    done
-                      ? 'bg-emerald-50 hover:bg-emerald-100'
-                      : 'bg-gray-50 hover:bg-gray-100'
-                  }`}
+                  onClick={() => selectEvent('timer')}
+                  className="flex items-center gap-2 px-3.5 py-2.5 rounded-full text-left transition-all cursor-pointer border-none bg-amber-50 hover:bg-amber-100"
                 >
-                  <span className="text-base">{event.icon}</span>
-                  <span className="text-sm font-medium text-gray-800">{event.name}</span>
-                  {done && <span className="text-emerald-500 text-xs ml-0.5">✓</span>}
-                  {done && <span className="text-emerald-400 text-[0.65rem] ml-0.5">Verbeter de high score</span>}
+                  <span className="text-base">⏱️</span>
+                  <span className="text-sm font-medium text-amber-700">Timer Stoppen</span>
                 </button>
-              );
-            })}
-            <button
-              onClick={() => selectEvent('timer')}
-              className="flex items-center gap-2 px-3.5 py-2.5 rounded-full text-left transition-all cursor-pointer border-none bg-amber-50 hover:bg-amber-100"
-            >
-              <span className="text-base">⏱️</span>
-              <span className="text-sm font-medium text-amber-700">Timer Stoppen</span>
-            </button>
-          </div>
+              </div>
 
-          <button
-            onClick={onBack}
-            className="w-full text-center text-gray-400 text-[0.85rem] mt-3 cursor-pointer bg-transparent border-none hover:text-gray-600 transition-colors"
-          >
-            &larr; Terug
-          </button>
+              <button
+                onClick={onBack}
+                className="w-full text-center text-gray-400 text-[0.85rem] mt-3 cursor-pointer bg-transparent border-none hover:text-gray-600 transition-colors"
+              >
+                &larr; Terug
+              </button>
+            </>
+          )}
         </>
       ) : showTimerStop ? (
         <div ref={slideRef}>
