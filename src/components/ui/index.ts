@@ -9,3 +9,4 @@ export { default as Subtitle } from './Subtitle';
 export { default as EventCard } from './EventCard';
 export { default as StatBox } from './StatBox';
 export { default as ScoreSheet } from './ScoreSheet';
+export { default as EventIcon } from './EventIcon';

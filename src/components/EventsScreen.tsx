@@ -6,7 +6,7 @@ import { EVENTS, type GameEvent } from '@/lib/events';
 import { calculateStats, getHighScores, type Stats, type HighScore } from '@/lib/scoring';
 import { useScoreEntry } from '@/hooks/useScoreEntry';
 import { useTimer } from '@/hooks/useTimer';
-import { Button, Input, ErrorMessage, StatBox } from '@/components/ui';
+import { Button, Input, ErrorMessage, StatBox, EventIcon } from '@/components/ui';
 
 interface EventsScreenProps {
   company: string;
@@ -57,7 +57,7 @@ function ScoreInput({
 
   return (
     <div className="flex flex-col items-center text-center">
-      <div className="text-4xl sm:text-5xl mb-3">{event.icon}</div>
+      <div className="mb-3"><EventIcon icon={event.icon} className="text-4xl sm:text-5xl" /></div>
       <h2 className="text-lg font-semibold text-gray-900 mb-1">{event.name}</h2>
       <p className="text-sm text-gray-400 mb-5">{event.desc}</p>
 
@@ -478,7 +478,7 @@ export default function EventsScreen({
                           : 'bg-gray-50 hover:bg-gray-100'
                       }`}
                     >
-                      <span className="text-base">{event.icon}</span>
+                      <EventIcon icon={event.icon} className="text-base" />
                       <span className="text-sm font-medium text-gray-800">{event.name}</span>
                       {done && <span className="text-emerald-500 text-xs ml-0.5">✓</span>}
                       {done && <span className="text-emerald-400 text-[0.65rem] ml-0.5">Verbeter de high score</span>}

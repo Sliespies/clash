@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import type { GameEvent } from '@/lib/events';
-import { Button, Input, Label, BackLink, ErrorMessage } from '@/components/ui';
+import { Button, Input, Label, BackLink, ErrorMessage, EventIcon } from '@/components/ui';
 
 interface ScoreScreenProps {
   event: GameEvent;
@@ -116,7 +116,7 @@ export default function ScoreScreen({
   return (
     <div ref={containerRef}>
       <div className="text-center mb-6">
-        <div className="text-3xl mb-1">{event.icon}</div>
+        <div className="mb-1"><EventIcon icon={event.icon} className="text-3xl" /></div>
         <div className="text-xl font-medium text-gray-900">{event.name}</div>
         <div className="text-gray-500 text-sm mt-1">{event.desc}</div>
       </div>

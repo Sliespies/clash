@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from 'react';
 import gsap from 'gsap';
 import type { GameEvent } from '@/lib/events';
 import { useScoreEntry } from '@/hooks/useScoreEntry';
-import { Button, Input, Label, ErrorMessage } from '@/components/ui';
+import { Button, Input, Label, ErrorMessage, EventIcon } from '@/components/ui';
 
 interface ScoreSheetProps {
   event: GameEvent;
@@ -89,7 +89,7 @@ export default function ScoreSheet({
         <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5" />
 
         <div className="flex items-center gap-3 mb-5">
-          <span className="text-3xl">{event.icon}</span>
+          <EventIcon icon={event.icon} className="text-3xl" />
           <div>
             <div className="font-medium text-gray-900">{event.name}</div>
             <div className="text-xs text-gray-400">{event.desc}</div>

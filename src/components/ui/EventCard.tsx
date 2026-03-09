@@ -7,6 +7,7 @@ import { useScoreEntry } from '@/hooks/useScoreEntry';
 import Button from './Button';
 import Input from './Input';
 import ErrorMessage from './ErrorMessage';
+import EventIcon from './EventIcon';
 
 interface EventCardProps {
   event: GameEvent;
@@ -61,7 +62,7 @@ export default function EventCard({
     return (
       <div className="bg-white border-l-4 border-indigo-500 rounded-xl py-4 px-4 text-left">
         <div className="flex items-center gap-3 mb-3">
-          <span className="text-2xl">{event.icon}</span>
+          <EventIcon icon={event.icon} className="text-2xl" />
           <div>
             <div className="font-medium text-sm text-gray-800">{event.name}</div>
             <div className="text-[0.7rem] text-gray-400">{event.desc}</div>
@@ -124,7 +125,7 @@ export default function EventCard({
       }`}
     >
       <div className="flex items-center justify-between">
-        <span className="text-2xl">{event.icon}</span>
+        <EventIcon icon={event.icon} className="text-2xl" />
         {completed && <span className="text-emerald-500 text-sm">&#10003;</span>}
       </div>
       <div className="font-medium text-sm text-gray-800 mt-2">{event.name}</div>
