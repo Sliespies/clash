@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clash of the Companies</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            padding: 24px 16px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: #f8fafc;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 32px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        label {
+            display: block;
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+        }
+
+        select, input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 1rem;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            background: #1e293b;
+            color: #f1f5f9;
+            appearance: none;
+            -webkit-appearance: none;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 40px;
+        }
+
+        select:focus, input:focus {
+            border-color: #3b82f6;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            margin-top: 16px;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:disabled {
+            background: #1e3a5f;
+            color: #64748b;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #334155;
+            color: #e2e8f0;
+        }
+
+        .btn-success {
+            background: #22c55e;
+            color: white;
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .event-card {
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            padding: 20px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s, transform 0.1s;
+        }
+
+        .event-card:active {
+            transform: scale(0.97);
+        }
+
+        .event-card:hover {
+            border-color: #3b82f6;
+            background: #1e3a5f;
+        }
+
+        .event-card .event-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        .event-card .event-type {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .score-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .score-header .event-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+
+        .score-header .event-desc {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #22c55e;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            color: #94a3b8;
+        }
+
+        .user-info {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-bottom: 16px;
+            padding: 8px;
+            background: #1e293b;
+            border-radius: 8px;
+        }
+
+        .loading {
+            text-align: center;
+            color: #94a3b8;
+            padding: 40px 0;
+        }
+
+        .stats-box {
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 8px;
+            text-align: center;
+        }
+
+        .stats-box .stat-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+
+        .stats-box .stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .stat-bonus .stat-value { color: #22c55e; }
+        .stat-straf .stat-value { color: #ef4444; }
+        .stat-timer .stat-value { color: #f59e0b; }
+        .stat-totaal .stat-value { color: #3b82f6; }
+
+        .error-msg {
+            background: #7f1d1d;
+            color: #fca5a5;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-top: 12px;
+        }
+
+        .timer-display {
+            background: #1e293b;
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .timer-display .timer-label {
+            font-size: 0.8rem;
+            color: #f59e0b;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .timer-display .timer-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fbbf24;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .timer-display.stopped {
+            border-color: #22c55e;
+        }
+
+        .timer-display.stopped .timer-label {
+            color: #22c55e;
+        }
+
+        .timer-display.stopped .timer-value {
+            color: #4ade80;
+        }
+
+        .timer-display.not-started {
+            border-color: #334155;
+        }
+
+        .timer-display.not-started .timer-label {
+            color: #94a3b8;
+        }
+
+        .timer-display.not-started .timer-value {
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Clash of the Companies</h1>
+
+        <!-- Screen 1: Company Selection -->
+        <div id="screen-company" class="screen active">
+            <p class="subtitle">Selecteer je bedrijf</p>
+            <label for="company-select">Bedrijf</label>
+            <select id="company-select">
+                <option value="">-- Kies een bedrijf --</option>
+            </select>
+            <button class="btn btn-primary" id="btn-company" disabled>Volgende</button>
+            <div id="company-loading" class="loading">Verbinden...</div>
+            <div id="company-error"></div>
+        </div>
+
+        <!-- Screen 2: Name Entry -->
+        <div id="screen-name" class="screen">
+            <span class="back-link" id="back-to-company">&larr; Terug</span>
+            <p class="subtitle">Vul je naam in</p>
+            <label for="name-input">Naam</label>
+            <input type="text" id="name-input" placeholder="Je volledige naam">
+            <button class="btn btn-primary" id="btn-name" disabled>Volgende</button>
+        </div>
+
+        <!-- Screen 3: Event Selection -->
+        <div id="screen-events" class="screen">
+            <span class="back-link" id="back-to-name">&larr; Terug</span>
+            <div class="user-info" id="user-info"></div>
+            <div class="timer-display not-started" id="timer-display">
+                <div class="timer-label">Timer</div>
+                <div class="timer-value" id="timer-value">00:00:00</div>
+            </div>
+            <div class="stats-box" id="stats-box" style="display:none;">
+                <div class="stat-bonus">
+                    <div class="stat-label">Bonus</div>
+                    <div class="stat-value" id="stat-bonus">0s</div>
+                </div>
+                <div class="stat-straf">
+                    <div class="stat-label">Straf</div>
+                    <div class="stat-value" id="stat-straf">0s</div>
+                </div>
+                <div class="stat-timer">
+                    <div class="stat-label">Timer</div>
+                    <div class="stat-value" id="stat-timer">0s</div>
+                </div>
+                <div class="stat-totaal">
+                    <div class="stat-label">Totaal</div>
+                    <div class="stat-value" id="stat-totaal">0s</div>
+                </div>
+            </div>
+            <p class="subtitle">Kies een activiteit</p>
+            <div class="events-grid" id="events-grid"></div>
+            <button class="btn btn-secondary" id="btn-done" style="margin-top: 24px;">Klaar - Opnieuw beginnen</button>
+        </div>
+
+        <!-- Screen 4: Score Entry -->
+        <div id="screen-score" class="screen">
+            <span class="back-link" id="back-to-events">&larr; Terug</span>
+            <div class="score-header">
+                <div class="event-title" id="score-event-title"></div>
+                <div class="event-desc" id="score-event-desc"></div>
+            </div>
+            <label for="score-input" id="score-label">Score</label>
+            <input type="number" id="score-input" placeholder="0" min="0" inputmode="numeric">
+            <button class="btn btn-success" id="btn-save">Opslaan</button>
+            <div id="score-error"></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Score opgeslagen!</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/11.1.0/jsrsasign-all-min.js"></script>
+    <script>
+        // --- CONFIG ---
+        const SHEET_ID = '1qRSgeU9amhv-z0556sEGYrTxZ-pE07-bWKuEl4kd-nQ';
+        const COMPANIES_TAB = 'Companies';
+        const SCORES_TAB = 'Scores';
+        const TIMER_TAB = 'Timer';
+
+        // --- SERVICE ACCOUNT ---
+        const SA_EMAIL = 'the-clash-of-the-companies@the-clash-489514.iam.gserviceaccount.com';
+        const SA_PRIVATE_KEY = `-----BEGIN PRIVATE KEY-----
+MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDwpUfWEowVAExd
+cgCSBoDdUQ0QfvB7Qhj98lLYmpNKc9nlMZ2RuNmhtvnvAudy3tkR/oIhklrpaC/M
+EdyjpvsWCbWuXM/PGQZFht+6c4FL9kMQy9nheIO3+VAVOmgTKGWNh8p4JbEQDdhn
+qONYy6QKmWUM2hoXPZJpyzwtZj0AeGIgN4FAJZr2o9mv945TxVbdlofZ8VyAwEq4
+rxWb0bm7I3s9xB3CrpTLzrVPvgzW1k5Gr8MUQfc4bvBT4stXlcO5CmTxkBx0Tmao
+/gKkKYr787XUNYwFLFbnNEz+TF9MEAK8j5Xz6V9D23WWixWppsd+MJe9XBC1ZcV4
+YtVdWyQZAgMBAAECggEAUVpW2DiJ8dmZd2fAaJ1ZODib1Y1MaCb2wvcGaeKL07op
+mhF1Ztuae1Cb2uDc9NkAglRLkuTi5hBKRE9vi0W6kX8z09/dgvI/TAbmIKbGubLl
+hkqb/FzdDrdyitKld4CLIFcdLBP18Wr000plnVGuwcSMxFUBSAURN8G0tNZg3gSs
+t4c6v5i7W7j9qT14fczDZ8y6FyYrJih7Aw5d6Qubzy1FV+H8vgz7Mj1yP0rns1bc
+dCcqrz9PF+ayQJO8c4TPa8ivKmNwSuuW3cGb7BbsznaZ6yYViZoG06IErtnEs30u
+1sv+9lZGejRMr6PZ8WdUTusoreyWKlYUtqiwrKC1VwKBgQD64qxTIFf9cunyFcn2
+/d0Npc6Fhi5HMIsztVQl2nmAEvw6gIXawDjKiQPYBRKNAfsJ+5ZKVKCccyv39T3J
+9WulA5SEMNAvqdN0f3l6D4HL2WYwk/ZH2x6SkU+NTsWOxiBPat6pfwWk++PuvQFO
+XJddT3k8fJhhJ8mHt5JtfY2zpwKBgQD1jSrtJ3nJWQoDxRotNVfid5FDpDtRZNkt
+FoIutMvHlHCqV3FKpxDRCQF6Uq5sOeJemPKmWCh4oZg991t3GYdZhWi3vRvYoqoF
+sP8sR410gqGTNkCWTe+mhEyKelFcp9DnRmdxwl3nQgw1/xohXe1Kk9lcXHyflGbR
+SVhvcFpiPwKBgFxfjVdl9z/ISb7qqtwYCIX34JxlFTD8/KPjRcJSOJ4hX2Ei5SXv
+1HkuDY5B/9yPOCEq0uE3W5N/DFdVopRzmli9grdRSbXi74pbTRzWDNJDj06fi/RV
+B2KrwgCjWjYBWPAkxyrdK/TdEcVbLdnuWYTvuBG/RlOvVJJ10qIhskTNAoGBAOi9
+w2BBuHeWQ53LJsKO+xwWxMNeWTMO6aKI4R+wEi67jgaHF0TxEUlwxcvRrq26N8v+
+IJB2ovWkBQ9G85Txx46cmuL9BfXSSGFYoKSxtWwnnUpRc+qDOJGWeI4Q3il6jtGH
+s+jpl+PogHZ1s6jIxG+Zr76RkzYWjVX1tTL7RVA1AoGAcdvmFYNqEgeUvckIWJpw
+SOQB+uLB+aATPLKxmhW4hyKtX6XV5mu5kY4mh5uVQsc3v+kb3bHhZQfp6kD1z+Nx
+v9uxHuZfe9LCZUtYqoJji1rQ/3NLS+Ow18xouKDicCXUwwLJ2kTv0kkXm9UuNDoC
+JUYwxuEKQKFuKU1Jrk5r6WY=
+-----END PRIVATE KEY-----`;
+
+        // --- AUTH ---
+        let cachedToken = null;
+        let tokenExpiry = 0;
+
+        async function getAccessToken() {
+            const now = Math.floor(Date.now() / 1000);
+            if (cachedToken && now < tokenExpiry - 60) {
+                return cachedToken;
+            }
+
+            const header = { alg: 'RS256', typ: 'JWT' };
+            const payload = {
+                iss: SA_EMAIL,
+                scope: 'https://www.googleapis.com/auth/spreadsheets',
+                aud: 'https://oauth2.googleapis.com/token',
+                iat: now,
+                exp: now + 3600,
+            };
+
+            const sHeader = JSON.stringify(header);
+            const sPayload = JSON.stringify(payload);
+            const sJWT = KJUR.jws.JWS.sign('RS256', sHeader, sPayload, SA_PRIVATE_KEY);
+
+            const res = await fetch('https://oauth2.googleapis.com/token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${sJWT}`,
+            });
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error_description || `Token request failed: HTTP ${res.status}`);
+            }
+
+            const data = await res.json();
+            cachedToken = data.access_token;
+            tokenExpiry = now + data.expires_in;
+            return cachedToken;
+        }
+
+        async function sheetsGet(range) {
+            const token = await getAccessToken();
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}`;
+            const res = await fetch(url, {
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw new Error(data.error?.message || `HTTP ${res.status}`);
+            }
+            return res.json();
+        }
+
+        async function sheetsAppend(range, values) {
+            const token = await getAccessToken();
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}:append?valueInputOption=USER_ENTERED`;
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ values }),
+            });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw new Error(data.error?.message || `HTTP ${res.status}`);
+            }
+            return res.json();
+        }
+
+        async function sheetsUpdate(range, values) {
+            const token = await getAccessToken();
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?valueInputOption=USER_ENTERED`;
+            const res = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ values }),
+            });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw new Error(data.error?.message || `HTTP ${res.status}`);
+            }
+            return res.json();
+        }
+
+        // --- EVENTS ---
+        const EVENTS = [
+            { name: 'Blazepods', type: 'time', label: 'Tijd (seconden)', desc: 'Voer je tijd in (seconden)' },
+            { name: 'Copycat', type: 'number', label: 'Coins', desc: 'Voer het aantal coins in' },
+            { name: 'Fietsen', type: 'time', label: 'Tijd (seconden)', desc: 'Voer je tijd in (seconden)' },
+            { name: 'VR', type: 'number', label: 'Bommen ontmanteld', desc: 'Voer het aantal ontmantelde bommen in' },
+            { name: 'Icaros', type: 'number', label: 'Levels', desc: 'Voer het aantal levels in' },
+            { name: 'Firewall', type: 'number', label: 'Voltooide puzzels', desc: 'Voer het aantal voltooide puzzels in' },
+            { name: 'Axethrowing', type: 'number', label: 'Score', desc: 'Voer je score in' },
+            { name: 'Piccoo', type: 'number', label: 'Getikten', desc: 'Voer het aantal getikten in' },
+            { name: 'MakeyMakey', type: 'number', label: 'Score', desc: 'Voer je score in' },
+            { name: 'Streetracket', type: 'number', label: 'Gescoorde ballen', desc: 'Voer het aantal gescoorde ballen in' },
+            { name: 'Roeien', type: 'time', label: 'Tijd (seconden)', desc: 'Voer de roeitijd in (seconden)', shared: true },
+        ];
+
+        // --- STATE ---
+        let selectedCompany = '';
+        let userName = '';
+        let selectedEvent = null;
+        let sharedExistingRow = null; // row number in sheet if editing a shared event
+        let timerInterval = null;
+        let timerStartTime = null;
+        let timerStopped = false;
+        let timerElapsed = null;
+        let timerRow = null; // row number in Timer tab
+
+        // --- DOM ---
+        const screens = {
+            company: document.getElementById('screen-company'),
+            name: document.getElementById('screen-name'),
+            events: document.getElementById('screen-events'),
+            score: document.getElementById('screen-score'),
+        };
+
+        function showScreen(name) {
+            Object.values(screens).forEach(s => s.classList.remove('active'));
+            screens[name].classList.add('active');
+        }
+
+        // --- COMPANY SCREEN ---
+        const companySelect = document.getElementById('company-select');
+        const btnCompany = document.getElementById('btn-company');
+        const companyLoading = document.getElementById('company-loading');
+        const companyError = document.getElementById('company-error');
+
+        async function loadCompanies() {
+            companyLoading.style.display = 'block';
+            companyError.innerHTML = '';
+            const data = await sheetsGet(`${COMPANIES_TAB}!A:A`);
+            companyLoading.style.display = 'none';
+            const rows = data.values || [];
+            companySelect.innerHTML = '<option value="">-- Kies een bedrijf --</option>';
+            rows.forEach(row => {
+                if (row[0] && row[0].trim()) {
+                    const opt = document.createElement('option');
+                    opt.value = row[0].trim();
+                    opt.textContent = row[0].trim();
+                    companySelect.appendChild(opt);
+                }
+            });
+        }
+
+        companySelect.addEventListener('change', () => {
+            btnCompany.disabled = !companySelect.value;
+        });
+
+        btnCompany.addEventListener('click', () => {
+            selectedCompany = companySelect.value;
+            showScreen('name');
+            document.getElementById('name-input').focus();
+        });
+
+        // Auto-connect on load
+        (async () => {
+            try {
+                await loadCompanies();
+            } catch (e) {
+                companyLoading.style.display = 'none';
+                companyError.innerHTML = `<div class="error-msg">Verbinding mislukt: ${e.message}</div>`;
+            }
+        })();
+
+        // --- NAME SCREEN ---
+        const nameInput = document.getElementById('name-input');
+        const btnName = document.getElementById('btn-name');
+
+        nameInput.addEventListener('input', () => {
+            btnName.disabled = !nameInput.value.trim();
+        });
+
+        btnName.addEventListener('click', () => {
+            userName = nameInput.value.trim();
+            document.getElementById('user-info').textContent = `${userName} - ${selectedCompany}`;
+            renderEvents();
+            showScreen('events');
+        });
+
+        nameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && nameInput.value.trim()) {
+                btnName.click();
+            }
+        });
+
+        document.getElementById('back-to-company').addEventListener('click', () => showScreen('company'));
+
+        // --- COMPANY STATS ---
+        async function loadCompanyStats() {
+            const statsBox = document.getElementById('stats-box');
+            try {
+                const data = await sheetsGet(`${SCORES_TAB}!A:E`);
+                const rows = (data.values || []).filter(r => r[0] === selectedCompany);
+
+                // Group scores by event: { eventName: { scores: [numbers], names: Set } }
+                const byEvent = {};
+                for (const row of rows) {
+                    const eventName = row[2];
+                    const score = Number(row[3]);
+                    const name = row[1];
+                    if (!eventName || isNaN(score)) continue;
+                    if (!byEvent[eventName]) byEvent[eventName] = { scores: [], names: new Set() };
+                    byEvent[eventName].scores.push(score);
+                    byEvent[eventName].names.add(name);
+                }
+
+                const maxScore = (ev) => byEvent[ev] ? Math.max(...byEvent[ev].scores) : 0;
+                const minScore = (ev) => byEvent[ev] ? Math.min(...byEvent[ev].scores) : 0;
+                const uniqueNames = (ev) => byEvent[ev] ? byEvent[ev].names.size : 0;
+                const hasEntries = (ev) => !!byEvent[ev];
+
+                // Bonusseconden (time-based — lower/higher is better, these get subtracted from total)
+                const bonus =
+                    (hasEntries('Blazepods') ? minScore('Blazepods') : 0) +
+                    (hasEntries('Fietsen') ? minScore('Fietsen') : 0) +
+                    (hasEntries('Axethrowing') ? maxScore('Axethrowing') : 0);
+
+                // Strafseconden
+                const straf =
+                    (hasEntries('Copycat') ? maxScore('Copycat') : 0) +
+                    (hasEntries('VR') ? maxScore('VR') * 30 + uniqueNames('VR') * 30 : 0) +
+                    (hasEntries('Icaros') ? 30 * (maxScore('Icaros') + uniqueNames('Icaros')) : 0) +
+                    (hasEntries('Firewall') ? Math.min(maxScore('Firewall') * 10, 90) : 0) +
+                    (hasEntries('Piccoo') ? maxScore('Piccoo') * 10 : 0) +
+                    (hasEntries('MakeyMakey') ? (maxScore('MakeyMakey') > 0 ? 30 : 0) : 0) +
+                    (hasEntries('Streetracket') ? maxScore('Streetracket') * 30 + 30 : 0);
+
+                // Add running or elapsed timer seconds
+                let timerSeconds = 0;
+                try {
+                    const timerData = await sheetsGet(`${TIMER_TAB}!A:D`);
+                    const timerRows = timerData.values || [];
+                    for (const tr of timerRows) {
+                        if (tr[0] === selectedCompany && tr[1]) {
+                            if (tr[2]) {
+                                // Timer stopped — use stored elapsed
+                                timerSeconds = Number(tr[3]) || 0;
+                            } else {
+                                // Timer still running
+                                timerSeconds = Math.floor((Date.now() - new Date(tr[1]).getTime()) / 1000);
+                            }
+                            break;
+                        }
+                    }
+                } catch (e) {
+                    // Timer tab might not exist
+                }
+
+                const totaal = timerSeconds + straf - bonus;
+
+                document.getElementById('stat-bonus').textContent = bonus + 's';
+                document.getElementById('stat-straf').textContent = straf + 's';
+                document.getElementById('stat-timer').textContent = timerSeconds + 's';
+                document.getElementById('stat-totaal').textContent = totaal + 's';
+                statsBox.style.display = 'grid';
+            } catch (e) {
+                statsBox.style.display = 'none';
+            }
+        }
+
+        // --- EVENTS SCREEN ---
+        const eventsGrid = document.getElementById('events-grid');
+
+        function renderEvents() {
+            loadCompanyStats();
+            loadTimerState();
+            eventsGrid.innerHTML = '';
+            EVENTS.forEach(event => {
+                const card = document.createElement('div');
+                card.className = 'event-card';
+                card.innerHTML = `
+                    <div class="event-name">${event.name}</div>
+                    <div class="event-type">${event.label}</div>
+                `;
+                card.addEventListener('click', () => {
+                    selectedEvent = event;
+                    openScoreScreen();
+                });
+                eventsGrid.appendChild(card);
+            });
+
+            // Add Timer stop card
+            const timerCard = document.createElement('div');
+            timerCard.className = 'event-card';
+            timerCard.style.borderColor = '#f59e0b';
+            timerCard.innerHTML = `
+                <div class="event-name" style="color:#fbbf24;">Timer Stoppen</div>
+                <div class="event-type">Wachtwoord</div>
+            `;
+            timerCard.addEventListener('click', () => {
+                selectedEvent = { name: 'Timer', type: 'password', label: 'Wachtwoord', desc: 'Voer het wachtwoord in om de timer te stoppen', isTimer: true };
+                openScoreScreen();
+            });
+            eventsGrid.appendChild(timerCard);
+        }
+
+        document.getElementById('back-to-name').addEventListener('click', () => showScreen('name'));
+        document.getElementById('btn-done').addEventListener('click', () => {
+            selectedCompany = '';
+            userName = '';
+            nameInput.value = '';
+            companySelect.value = '';
+            btnCompany.disabled = true;
+            btnName.disabled = true;
+            if (timerInterval) clearInterval(timerInterval);
+            timerStartTime = null;
+            timerStopped = false;
+            timerElapsed = null;
+            timerRow = null;
+            showScreen('company');
+        });
+
+        // --- SCORE SCREEN ---
+        const scoreInput = document.getElementById('score-input');
+        const btnSave = document.getElementById('btn-save');
+        const scoreError = document.getElementById('score-error');
+
+        async function openScoreScreen() {
+            document.getElementById('score-event-title').textContent = selectedEvent.name;
+            document.getElementById('score-event-desc').textContent = selectedEvent.desc;
+            document.getElementById('score-label').textContent = selectedEvent.label;
+            scoreInput.value = '';
+            scoreError.innerHTML = '';
+            sharedExistingRow = null;
+
+            // Switch input type for timer password
+            if (selectedEvent.isTimer) {
+                scoreInput.type = 'text';
+                scoreInput.placeholder = 'Wachtwoord...';
+                scoreInput.inputMode = 'text';
+                btnSave.textContent = 'Stop Timer';
+
+                if (timerStopped) {
+                    scoreError.innerHTML = '<div style="color:#22c55e;font-size:0.9rem;margin-top:8px;text-align:center;">Timer is al gestopt!</div>';
+                } else if (!timerStartTime) {
+                    scoreError.innerHTML = '<div style="color:#94a3b8;font-size:0.9rem;margin-top:8px;text-align:center;">Timer is nog niet gestart (start bij eerste score).</div>';
+                }
+            } else {
+                scoreInput.type = 'number';
+                scoreInput.placeholder = '0';
+                scoreInput.inputMode = 'numeric';
+                btnSave.textContent = 'Opslaan';
+            }
+
+            showScreen('score');
+
+            if (selectedEvent.shared) {
+                scoreInput.disabled = true;
+                btnSave.disabled = true;
+                scoreError.innerHTML = '<div class="loading">Bestaande score ophalen...</div>';
+                try {
+                    const data = await sheetsGet(`${SCORES_TAB}!A:E`);
+                    const rows = data.values || [];
+                    for (let i = 0; i < rows.length; i++) {
+                        if (rows[i][0] === selectedCompany && rows[i][2] === selectedEvent.name) {
+                            sharedExistingRow = i + 1; // 1-based row number
+                            scoreInput.value = rows[i][3] || '';
+                            break;
+                        }
+                    }
+                    scoreError.innerHTML = sharedExistingRow
+                        ? '<div style="color:#94a3b8;font-size:0.85rem;margin-top:8px;text-align:center;">Bestaande score gevonden — pas aan indien nodig</div>'
+                        : '';
+                } catch (e) {
+                    scoreError.innerHTML = `<div class="error-msg">Kon score niet ophalen: ${e.message}</div>`;
+                } finally {
+                    scoreInput.disabled = false;
+                    btnSave.disabled = false;
+                }
+            }
+
+            scoreInput.focus();
+        }
+
+        document.getElementById('back-to-events').addEventListener('click', () => showScreen('events'));
+
+        btnSave.addEventListener('click', async () => {
+            const value = scoreInput.value.trim();
+
+            // Handle timer password
+            if (selectedEvent.isTimer) {
+                if (value.toLowerCase() !== 'samen sterk') {
+                    scoreError.innerHTML = '<div class="error-msg">Fout wachtwoord!</div>';
+                    return;
+                }
+                if (timerStopped) {
+                    scoreError.innerHTML = '<div style="color:#22c55e;font-size:0.9rem;margin-top:8px;text-align:center;">Timer is al gestopt!</div>';
+                    return;
+                }
+                if (!timerStartTime) {
+                    scoreError.innerHTML = '<div class="error-msg">Timer is nog niet gestart.</div>';
+                    return;
+                }
+
+                scoreError.innerHTML = '';
+                btnSave.disabled = true;
+                btnSave.textContent = 'Stoppen...';
+
+                try {
+                    const elapsedSeconds = Math.floor((Date.now() - timerStartTime) / 1000);
+                    await stopTimer(elapsedSeconds);
+                    showToast(`Timer gestopt! ${formatTimer(elapsedSeconds)}`);
+                    renderEvents();
+                    showScreen('events');
+                } catch (e) {
+                    scoreError.innerHTML = `<div class="error-msg">Timer stoppen mislukt: ${e.message}</div>`;
+                } finally {
+                    btnSave.disabled = false;
+                    btnSave.textContent = 'Stop Timer';
+                }
+                return;
+            }
+
+            // Regular score save
+            if (!value || isNaN(value) || Number(value) < 0) {
+                scoreError.innerHTML = '<div class="error-msg">Voer een geldig getal in.</div>';
+                return;
+            }
+            scoreError.innerHTML = '';
+            btnSave.disabled = true;
+            btnSave.textContent = 'Opslaan...';
+
+            try {
+                const timestamp = new Date().toLocaleString('nl-BE');
+                const row = [selectedCompany, userName, selectedEvent.name, Number(value), timestamp];
+                if (selectedEvent.shared && sharedExistingRow) {
+                    await sheetsUpdate(`${SCORES_TAB}!A${sharedExistingRow}:E${sharedExistingRow}`, [row]);
+                } else {
+                    await sheetsAppend(`${SCORES_TAB}!A:E`, [row]);
+                }
+
+                // Start timer on first score save for this company
+                await startTimerForCompany();
+
+                showToast('Score opgeslagen!');
+                loadCompanyStats();
+                showScreen('events');
+            } catch (e) {
+                scoreError.innerHTML = `<div class="error-msg">Opslaan mislukt: ${e.message}</div>`;
+            } finally {
+                btnSave.disabled = false;
+                btnSave.textContent = 'Opslaan';
+            }
+        });
+
+        scoreInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && scoreInput.value.trim()) {
+                btnSave.click();
+            }
+        });
+
+        // --- TIMER ---
+        function formatTimer(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = Math.floor(seconds % 60);
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function updateTimerDisplay() {
+            const display = document.getElementById('timer-display');
+            const value = document.getElementById('timer-value');
+
+            if (timerStopped && timerElapsed !== null) {
+                display.className = 'timer-display stopped';
+                value.textContent = formatTimer(timerElapsed);
+                return;
+            }
+
+            if (!timerStartTime) {
+                display.className = 'timer-display not-started';
+                value.textContent = '00:00:00';
+                return;
+            }
+
+            display.className = 'timer-display';
+            const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
+            value.textContent = formatTimer(elapsed);
+        }
+
+        function startTimerTick() {
+            if (timerInterval) clearInterval(timerInterval);
+            if (timerStartTime && !timerStopped) {
+                timerInterval = setInterval(updateTimerDisplay, 1000);
+            }
+            updateTimerDisplay();
+        }
+
+        async function loadTimerState() {
+            timerStartTime = null;
+            timerStopped = false;
+            timerElapsed = null;
+            timerRow = null;
+            if (timerInterval) clearInterval(timerInterval);
+
+            try {
+                const data = await sheetsGet(`${TIMER_TAB}!A:D`);
+                const rows = data.values || [];
+                for (let i = 0; i < rows.length; i++) {
+                    if (rows[i][0] === selectedCompany) {
+                        timerRow = i + 1;
+                        timerStartTime = new Date(rows[i][1]).getTime();
+                        if (rows[i][2]) {
+                            timerStopped = true;
+                            timerElapsed = Number(rows[i][3]) || Math.floor((new Date(rows[i][2]).getTime() - timerStartTime) / 1000);
+                        }
+                        break;
+                    }
+                }
+            } catch (e) {
+                // Timer tab might not exist yet
+            }
+
+            startTimerTick();
+        }
+
+        async function startTimerForCompany() {
+            // Only start if not already started
+            if (timerStartTime) return;
+
+            const now = new Date();
+            const timestamp = now.toISOString();
+            try {
+                await sheetsAppend(`${TIMER_TAB}!A:D`, [[selectedCompany, timestamp, '', '']]);
+                timerStartTime = now.getTime();
+                timerStopped = false;
+                // Find the row we just created
+                const data = await sheetsGet(`${TIMER_TAB}!A:D`);
+                const rows = data.values || [];
+                for (let i = 0; i < rows.length; i++) {
+                    if (rows[i][0] === selectedCompany) {
+                        timerRow = i + 1;
+                        break;
+                    }
+                }
+                startTimerTick();
+            } catch (e) {
+                // Silently fail — timer is a bonus feature
+            }
+        }
+
+        async function stopTimer(elapsedSeconds) {
+            if (!timerRow) return;
+            const now = new Date().toISOString();
+            try {
+                await sheetsUpdate(`${TIMER_TAB}!C${timerRow}:D${timerRow}`, [[now, elapsedSeconds]]);
+                timerStopped = true;
+                timerElapsed = elapsedSeconds;
+                if (timerInterval) clearInterval(timerInterval);
+                updateTimerDisplay();
+            } catch (e) {
+                throw e;
+            }
+        }
+
+        // --- TOAST ---
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+    </script>
+</body>
+</html>
