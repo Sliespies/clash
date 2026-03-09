@@ -121,12 +121,18 @@ function TimerStopInput({
   onBack,
   timerStatus,
   onStop,
+  allCompleted,
+  completedCount,
+  totalCount,
 }: {
   showToast: (msg: string) => void;
   onSaved: () => void;
   onBack: () => void;
   timerStatus: 'not-started' | 'running' | 'stopped';
   onStop: () => Promise<number | null>;
+  allCompleted: boolean;
+  completedCount: number;
+  totalCount: number;
 }) {
   const [value, setValue] = useState('');
   const [saving, setSaving] = useState(false);
@@ -139,6 +145,10 @@ function TimerStopInput({
   }, []);
 
   const onSave = async () => {
+    if (!allCompleted) {
+      setError(`Nog niet alle activiteiten voltooid (${completedCount}/${totalCount})`);
+      return;
+    }
     const normalized = value.trim().toLowerCase().replace(/\s+/g, '');
     if (normalized !== 'samensterk') {
       setError('Fout wachtwoord!');
@@ -176,6 +186,12 @@ function TimerStopInput({
       <div className="text-5xl mb-3">⏱️</div>
       <h2 className="text-lg font-semibold text-gray-900 mb-1">Timer Stoppen</h2>
       <p className="text-sm text-gray-400 mb-5">Voer het wachtwoord in om de timer te stoppen</p>
+
+      {!allCompleted && (
+        <div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl px-4 py-2 mb-3 w-full">
+          Nog {totalCount - completedCount} activiteit{totalCount - completedCount !== 1 ? 'en' : ''} te gaan ({completedCount}/{totalCount})
+        </div>
+      )}
 
       {timerStatus === 'stopped' && (
         <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-xl px-4 py-2 mb-3 w-full">
@@ -443,7 +459,9 @@ export default function EventsScreen({
             />
           ) : null}
 
-          <p className="text-center text-gray-400 text-sm mb-3">Kies een activiteit</p>
+          <p className="text-center text-gray-400 text-sm mb-3">
+            Kies een activiteit ({completedEvents.size}/{EVENTS.length})
+          </p>
 
           <div ref={listRef} className="flex flex-wrap gap-2">
             {EVENTS.map((event) => {
@@ -461,6 +479,7 @@ export default function EventsScreen({
                   <span className="text-base">{event.icon}</span>
                   <span className="text-sm font-medium text-gray-800">{event.name}</span>
                   {done && <span className="text-emerald-500 text-xs ml-0.5">✓</span>}
+                  {done && <span className="text-emerald-400 text-[0.65rem] ml-0.5">Verbeter de high score</span>}
                 </button>
               );
             })}
@@ -488,6 +507,9 @@ export default function EventsScreen({
             onBack={backToList}
             timerStatus={timer.status}
             onStop={timer.stopTimer}
+            allCompleted={completedEvents.size >= EVENTS.length}
+            completedCount={completedEvents.size}
+            totalCount={EVENTS.length}
           />
         </div>
       ) : selectedEvent ? (
