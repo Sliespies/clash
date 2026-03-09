@@ -57,7 +57,7 @@ function ScoreInput({
 
   return (
     <div className="flex flex-col items-center text-center">
-      <div className="text-5xl mb-3">{event.icon}</div>
+      <div className="text-4xl sm:text-5xl mb-3">{event.icon}</div>
       <h2 className="text-lg font-semibold text-gray-900 mb-1">{event.name}</h2>
       <p className="text-sm text-gray-400 mb-5">{event.desc}</p>
 
@@ -183,7 +183,7 @@ function TimerStopInput({
 
   return (
     <div className="flex flex-col items-center text-center">
-      <div className="text-5xl mb-3">⏱️</div>
+      <div className="text-4xl sm:text-5xl mb-3">⏱️</div>
       <h2 className="text-lg font-semibold text-gray-900 mb-1">Timer Stoppen</h2>
       <p className="text-sm text-gray-400 mb-5">Voer het wachtwoord in om de timer te stoppen</p>
 

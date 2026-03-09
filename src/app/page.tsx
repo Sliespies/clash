@@ -62,9 +62,9 @@ export default function Home() {
   if (!ready) return null;
 
   return (
-    <div className="w-full max-w-[520px] px-4 py-8">
+    <div className="w-full max-w-[520px] px-4 py-5 sm:py-8">
       <div className="flex justify-center mb-6">
-        <img src="/logo.svg" alt="Clash of the Companies" className="h-24 w-auto" />
+        <img src="/logo.svg" alt="Clash of the Companies" className="h-16 sm:h-24 w-auto" />
       </div>
 
       <Card>

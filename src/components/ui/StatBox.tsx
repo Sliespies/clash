@@ -38,7 +38,7 @@ const StatBox = forwardRef<HTMLDivElement, StatBoxProps>(({ items }, ref) => {
       {items.map((item) => (
         <div
           key={item.id}
-          className={`${bgClasses[item.color]} rounded-2xl p-3 text-center`}
+          className={`${bgClasses[item.color]} rounded-2xl p-2 sm:p-3 text-center`}
         >
           <div className={`text-[0.7rem] ${labelClasses[item.color]} uppercase tracking-wide mb-1`}>{item.label}</div>
           <div id={item.id} className={`${item.value.length > 5 ? 'text-base' : 'text-xl'} font-semibold tabular-nums ${textClasses[item.color]}`}>
