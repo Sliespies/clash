@@ -232,14 +232,14 @@ export default function EventsScreen({
 }: EventsScreenProps) {
   const [selectedEvent, setSelectedEvent] = useState<GameEvent | null>(null);
   const [showTimerStop, setShowTimerStop] = useState(false);
-  const [stats, setStats] = useState<(Stats & { timer: number }) | null>(null);
+  const [stats, setStats] = useState<(Stats & { timer: number; finalTotaal: number }) | null>(null);
   const [completedEvents, setCompletedEvents] = useState<Set<string>>(new Set());
   const [highScores, setHighScores] = useState<Record<string, HighScore>>({});
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const slideRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
-  const prevStats = useRef<{ bonus: number; straf: number; timer: number; totaal: number }>({ bonus: 0, straf: 0, timer: 0, totaal: 0 });
+  const prevStats = useRef<{ bonus: number; straf: number; totaal: number; finalTotaal: number }>({ bonus: 0, straf: 0, totaal: 0, finalTotaal: 0 });
   const timer = useTimer(company);
 
   const loadStats = useCallback(async () => {
@@ -284,7 +284,8 @@ export default function EventsScreen({
         bonus: baseStats.bonus,
         straf: baseStats.straf,
         timer: timerSeconds,
-        totaal: timerSeconds + baseStats.straf - baseStats.bonus,
+        totaal: baseStats.straf - baseStats.bonus,
+        finalTotaal: timerSeconds + baseStats.straf - baseStats.bonus,
       };
       setStats(newStats);
       setHighScores(getHighScores(rows, EVENTS));
@@ -301,24 +302,24 @@ export default function EventsScreen({
 
       if (statsRef.current) {
         const from = prevStats.current;
-        const obj = { bonus: from.bonus, straf: from.straf, timer: from.timer ?? 0, totaal: from.totaal };
+        const obj = { bonus: from.bonus, straf: from.straf, totaal: from.totaal, finalTotaal: from.finalTotaal };
         gsap.to(obj, {
           bonus: newStats.bonus,
           straf: newStats.straf,
-          timer: newStats.timer,
           totaal: newStats.totaal,
+          finalTotaal: newStats.finalTotaal,
           duration: 0.8,
           ease: 'power2.out',
-          snap: { bonus: 1, straf: 1, timer: 1, totaal: 1 },
+          snap: { bonus: 1, straf: 1, totaal: 1, finalTotaal: 1 },
           onUpdate: () => {
             const bonusEl = document.getElementById('stat-bonus');
             const strafEl = document.getElementById('stat-straf');
-            const timerEl = document.getElementById('stat-timer');
             const totaalEl = document.getElementById('stat-totaal');
+            const finalEl = document.getElementById('stat-final-totaal');
             if (bonusEl) bonusEl.textContent = Math.round(obj.bonus) + 's';
             if (strafEl) strafEl.textContent = Math.round(obj.straf) + 's';
-            if (timerEl) timerEl.textContent = Math.round(obj.timer) + 's';
             if (totaalEl) totaalEl.textContent = Math.round(obj.totaal) + 's';
+            if (finalEl) finalEl.textContent = Math.round(obj.finalTotaal) + 's';
           },
         });
         prevStats.current = newStats;
@@ -416,17 +417,22 @@ export default function EventsScreen({
             }`}>{timer.display}</div>
           </div>
 
-          {stats && (
+          {stats && timer.status === 'stopped' ? (
+            <div ref={statsRef} className="bg-indigo-50 rounded-2xl p-5 text-center mb-4">
+              <div className="text-[0.7rem] text-indigo-400 uppercase tracking-wide mb-1">Eindtotaal</div>
+              <div id="stat-final-totaal" className="text-3xl font-bold text-indigo-600">{stats.finalTotaal}s</div>
+              <div className="text-xs text-indigo-300 mt-1">Timer {stats.timer}s + Straf {stats.straf}s − Bonus {stats.bonus}s</div>
+            </div>
+          ) : stats ? (
             <StatBox
               ref={statsRef}
               items={[
                 { label: 'Bonus', value: `${stats.bonus}s`, id: 'stat-bonus', color: 'green' },
                 { label: 'Straf', value: `${stats.straf}s`, id: 'stat-straf', color: 'red' },
-                { label: 'Timer', value: `${stats.timer}s`, id: 'stat-timer', color: 'amber' },
                 { label: 'Totaal', value: `${stats.totaal}s`, id: 'stat-totaal', color: 'indigo' },
               ]}
             />
-          )}
+          ) : null}
 
           <p className="text-center text-gray-400 text-sm mb-3">Kies een activiteit</p>
 
