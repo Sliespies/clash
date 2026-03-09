@@ -183,7 +183,7 @@ function TimerStopInput({
 
   return (
     <div className="flex flex-col items-center text-center">
-      <div className="text-4xl sm:text-5xl mb-3">⏱️</div>
+      <div className="mb-3"><EventIcon icon="/timer.svg" className="text-4xl sm:text-5xl" /></div>
       <h2 className="text-lg font-semibold text-gray-900 mb-1">Timer Stoppen</h2>
       <p className="text-sm text-gray-400 mb-5">Voer het wachtwoord in om de timer te stoppen</p>
 
@@ -489,7 +489,7 @@ export default function EventsScreen({
                   onClick={() => selectEvent('timer')}
                   className="flex items-center gap-2 px-3.5 py-2.5 rounded-full text-left transition-all cursor-pointer border-none bg-amber-50 hover:bg-amber-100"
                 >
-                  <span className="text-base">⏱️</span>
+                  <EventIcon icon="/timer.svg" className="text-base" />
                   <span className="text-sm font-medium text-amber-700">Timer Stoppen</span>
                 </button>
               </div>
