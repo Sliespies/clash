@@ -4,7 +4,7 @@ interface StatItem {
   label: string;
   value: string;
   id: string;
-  color: 'green' | 'red' | 'indigo';
+  color: 'green' | 'red' | 'amber' | 'indigo';
 }
 
 interface StatBoxProps {
@@ -14,24 +14,27 @@ interface StatBoxProps {
 const bgClasses = {
   green: 'bg-emerald-50',
   red: 'bg-red-50',
+  amber: 'bg-amber-50',
   indigo: 'bg-indigo-50',
 };
 
 const textClasses = {
   green: 'text-emerald-600',
   red: 'text-red-600',
+  amber: 'text-amber-600',
   indigo: 'text-indigo-600',
 };
 
 const labelClasses = {
   green: 'text-emerald-400',
   red: 'text-red-400',
+  amber: 'text-amber-400',
   indigo: 'text-indigo-400',
 };
 
 const StatBox = forwardRef<HTMLDivElement, StatBoxProps>(({ items }, ref) => {
   return (
-    <div ref={ref} className="grid grid-cols-3 gap-2 mb-4">
+    <div ref={ref} className={`grid gap-2 mb-4 ${items.length === 4 ? 'grid-cols-4' : 'grid-cols-3'}`}>
       {items.map((item) => (
         <div
           key={item.id}
