@@ -293,7 +293,8 @@ export default function EventsScreen({
       const done = new Set<string>();
       for (const row of rows) {
         if (row[0] === company && row[2]) {
-          if (row[2] === 'Roeien' || row[1] === userName) {
+          const ev = EVENTS.find(e => e.name === row[2]);
+          if ((ev && ev.shared) || row[1] === userName) {
             done.add(row[2]);
           }
         }

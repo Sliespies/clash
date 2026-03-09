@@ -42,7 +42,12 @@ export function useScoreEntry({ event, company, userName }: UseScoreEntryProps) 
           if (matchesEvent && matchesCompany && (event.shared || matchesUser)) {
             setExistingRow(i + 1);
             setValue(rows[i][3] || '');
-            setExistingInfo('Bestaande score gevonden — pas aan indien nodig');
+            const enteredBy = rows[i][1] || '';
+            if (event.shared && enteredBy && enteredBy !== userName) {
+              setExistingInfo(`Score ${rows[i][3]} ingevoerd door ${enteredBy} — pas aan indien nodig`);
+            } else {
+              setExistingInfo(`Bestaande score: ${rows[i][3]} — pas aan indien nodig`);
+            }
             break;
           }
         }
