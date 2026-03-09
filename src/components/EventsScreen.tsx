@@ -223,6 +223,14 @@ function TimerStopInput({
   );
 }
 
+function formatTime(seconds: number): string {
+  const h = Math.floor(Math.abs(seconds) / 3600);
+  const m = Math.floor((Math.abs(seconds) % 3600) / 60);
+  const s = Math.floor(Math.abs(seconds) % 60);
+  const sign = seconds < 0 ? '-' : '';
+  return `${sign}${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
 export default function EventsScreen({
   company,
   userName,
@@ -319,8 +327,8 @@ export default function EventsScreen({
             const finalEl = document.getElementById('stat-final-totaal');
             if (bonusEl) bonusEl.textContent = Math.round(obj.bonus) + 's';
             if (strafEl) strafEl.textContent = Math.round(obj.straf) + 's';
-            if (totaalEl) totaalEl.textContent = Math.round(obj.totaal) + 's';
-            if (finalEl) finalEl.textContent = Math.round(obj.finalTotaal) + 's';
+            if (totaalEl) totaalEl.textContent = formatTime(Math.round(obj.totaal));
+            if (finalEl) finalEl.textContent = formatTime(Math.round(obj.finalTotaal));
           },
         });
         prevStats.current = newStats;
@@ -421,7 +429,7 @@ export default function EventsScreen({
           {stats && timer.status === 'stopped' ? (
             <div ref={statsRef} className="bg-indigo-50 rounded-2xl p-5 text-center mb-4">
               <div className="text-[0.7rem] text-indigo-400 uppercase tracking-wide mb-1">Eindtotaal</div>
-              <div id="stat-final-totaal" className="text-3xl font-bold text-indigo-600">{stats.finalTotaal}s</div>
+              <div id="stat-final-totaal" className="text-3xl font-bold text-indigo-600 tabular-nums">{formatTime(stats.finalTotaal)}</div>
               <div className="text-xs text-indigo-300 mt-1">Timer {stats.timer}s + Straf {stats.straf}s − Bonus {stats.bonus}s</div>
             </div>
           ) : stats ? (
@@ -430,7 +438,7 @@ export default function EventsScreen({
               items={[
                 { label: 'Bonus', value: `${stats.bonus}s`, id: 'stat-bonus', color: 'green' },
                 { label: 'Straf', value: `${stats.straf}s`, id: 'stat-straf', color: 'red' },
-                { label: 'Totaal', value: `${stats.totaal}s`, id: 'stat-totaal', color: 'indigo' },
+                { label: 'Totaal', value: formatTime(stats.totaal), id: 'stat-totaal', color: 'indigo' },
               ]}
             />
           ) : null}
