@@ -7,6 +7,7 @@ import { calculateStats, getHighScores, type Stats, type HighScore } from '@/lib
 import { useScoreEntry } from '@/hooks/useScoreEntry';
 import { useTimer } from '@/hooks/useTimer';
 import { Button, Input, ErrorMessage, StatBox, EventIcon } from '@/components/ui';
+import Confetti from '@/components/ui/Confetti';
 
 interface EventsScreenProps {
   company: string;
@@ -137,6 +138,8 @@ function TimerStopInput({
   const [value, setValue] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [confettiOrigin, setConfettiOrigin] = useState<{ x: number; y: number } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -167,13 +170,14 @@ function TimerStopInput({
     setSaving(true);
     try {
       const elapsed = await onStop();
+      setShowConfetti(true);
       if (elapsed !== null) {
         const h = Math.floor(elapsed / 3600);
         const m = Math.floor((elapsed % 3600) / 60);
         const s = elapsed % 60;
         showToast(`Timer gestopt! ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`);
       }
-      onSaved();
+      setTimeout(() => onSaved(), 3000);
     } catch {
       setError('Timer stoppen mislukt');
     } finally {
@@ -183,6 +187,7 @@ function TimerStopInput({
 
   return (
     <div className="flex flex-col items-center text-center">
+      {showConfetti && <Confetti originY={window.innerHeight * 0.35} />}
       <div className="mb-3"><EventIcon icon="/timer.svg" className="text-4xl sm:text-5xl" /></div>
       <h2 className="text-lg font-semibold text-gray-900 mb-1">Timer Stoppen</h2>
       <p className="text-sm text-gray-400 mb-5">Voer het wachtwoord in om de timer te stoppen</p>
