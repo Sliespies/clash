@@ -424,10 +424,18 @@ export default function EventsScreen({
 
   return (
     <div ref={containerRef}>
-      <div className="flex justify-center mb-4">
+      <div className="flex items-center justify-center gap-2 mb-4">
         <div className="text-gray-500 text-[0.8rem] py-1.5 px-4 bg-gray-100 rounded-full">
           {userName} &middot; {company}
         </div>
+        <a
+          href="/leaderboard"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="p-1.5 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+        >
+          <img src="/trophy.svg" alt="Klassement" className="w-5 h-5" />
+        </a>
       </div>
 
       {!selectedEvent && !showTimerStop ? (
