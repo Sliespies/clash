@@ -1,8 +1,14 @@
 import jwt from 'jsonwebtoken';
 
-const SHEET_ID = process.env.SHEET_ID!;
-const SA_EMAIL = process.env.SA_EMAIL!;
-const SA_PRIVATE_KEY = process.env.SA_PRIVATE_KEY!.replace(/\\n/g, '\n');
+function getEnv(key: string): string {
+  const val = process.env[key];
+  if (!val) throw new Error(`Missing environment variable: ${key}`);
+  return val;
+}
+
+function getSheetId() { return getEnv('SHEET_ID'); }
+function getSaEmail() { return getEnv('SA_EMAIL'); }
+function getSaPrivateKey() { return getEnv('SA_PRIVATE_KEY').replace(/\\n/g, '\n'); }
 
 let cachedToken: string | null = null;
 let tokenExpiry = 0;
@@ -15,13 +21,13 @@ async function getAccessToken(): Promise<string> {
 
   const token = jwt.sign(
     {
-      iss: SA_EMAIL,
+      iss: getSaEmail(),
       scope: 'https://www.googleapis.com/auth/spreadsheets',
       aud: 'https://oauth2.googleapis.com/token',
       iat: now,
       exp: now + 3600,
     },
-    SA_PRIVATE_KEY,
+    getSaPrivateKey(),
     { algorithm: 'RS256' }
   );
 
@@ -44,7 +50,7 @@ async function getAccessToken(): Promise<string> {
 
 export async function sheetsGet(range: string) {
   const token = await getAccessToken();
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${getSheetId()}/values/${range}`;
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -57,7 +63,7 @@ export async function sheetsGet(range: string) {
 
 export async function sheetsAppend(range: string, values: (string | number)[][]) {
   const token = await getAccessToken();
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}:append?valueInputOption=USER_ENTERED`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${getSheetId()}/values/${range}:append?valueInputOption=USER_ENTERED`;
   const res = await fetch(url, {
     method: 'POST',
     headers: {
@@ -75,7 +81,7 @@ export async function sheetsAppend(range: string, values: (string | number)[][])
 
 export async function sheetsUpdate(range: string, values: (string | number)[][]) {
   const token = await getAccessToken();
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?valueInputOption=USER_ENTERED`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${getSheetId()}/values/${range}?valueInputOption=USER_ENTERED`;
   const res = await fetch(url, {
     method: 'PUT',
     headers: {
