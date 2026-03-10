@@ -70,7 +70,7 @@ function ScoreInput({
 
       {highScore && (
         <div className="bg-indigo-50 text-indigo-600 text-xs rounded-xl px-4 py-2 mb-3 w-full">
-          Highscore: {highScore.score}{event.type === 'time' ? 's' : ''} — {highScore.name} ({highScore.company})
+          Highscore: {highScore.score}{event.type === 'time' ? 's' : ''} — {highScore.company === 'Target' ? 'Target' : `${highScore.name} (${highScore.company})`}
         </div>
       )}
 
