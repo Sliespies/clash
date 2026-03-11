@@ -456,11 +456,21 @@ export default function EventsScreen({
           </div>
 
           {stats && timer.status === 'stopped' ? (
-            <div ref={statsRef} className="bg-indigo-50 rounded-2xl p-5 text-center mb-4">
-              <div className="text-[0.7rem] text-indigo-400 uppercase tracking-wide mb-1">Eindtotaal</div>
-              <div id="stat-final-totaal" className="text-3xl font-bold text-indigo-600 tabular-nums">{formatTime(stats.finalTotaal)}</div>
-              <div className="text-xs text-indigo-300 mt-1">Timer {stats.timer}s + Straf {stats.straf}s − Bonus {stats.bonus}s</div>
-            </div>
+            <>
+              <div ref={statsRef} className="bg-indigo-50 rounded-2xl p-5 text-center mb-4">
+                <div className="text-[0.7rem] text-indigo-400 uppercase tracking-wide mb-1">Eindtotaal</div>
+                <div id="stat-final-totaal" className="text-3xl font-bold text-indigo-600 tabular-nums">{formatTime(stats.finalTotaal)}</div>
+                <div className="text-xs text-indigo-300 mt-1">Timer {stats.timer}s + Straf {stats.straf}s − Bonus {stats.bonus}s</div>
+              </div>
+              <a
+                href={"https://forms.cloud.microsoft/e/gCpWdHnyqP"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full text-center bg-[#04A4F2] text-white font-medium text-sm py-3 rounded-full hover:opacity-90 transition-opacity mb-4"
+              >
+                Vul de vragenlijst in
+              </a>
+            </>
           ) : (
             <>
               {stats ? (

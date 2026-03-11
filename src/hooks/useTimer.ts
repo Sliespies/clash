@@ -82,6 +82,10 @@ export function useTimer(company: string) {
 
   useEffect(() => {
     loadTimer();
+    const poll = setInterval(() => {
+      if (!document.hidden) loadTimer();
+    }, 10000);
+    return () => clearInterval(poll);
   }, [loadTimer]);
 
   const startTimer = useCallback(async () => {
