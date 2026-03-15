@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { EVENTS } from '@/lib/events';
 import { calculateStats } from '@/lib/scoring';
+import { parseElapsedSeconds } from '@/lib/timer-utils';
 
 interface CompanyData {
   company: string;
@@ -98,15 +99,9 @@ export default function LiveDashboard() {
           }
           if (timerRow[2]) {
             // Use column D if available, otherwise calculate from start/stop times
-            const colDRaw = timerRow[3];
-            let colD = Number(colDRaw);
-            // Parse H:MM:SS or HH:MM:SS format
-            if (isNaN(colD) && colDRaw && /^\d+:\d{2}:\d{2}$/.test(colDRaw)) {
-              const parts = colDRaw.split(':').map(Number);
-              colD = parts[0] * 3600 + parts[1] * 60 + parts[2];
-            }
-            if (colD > 0) {
-              stoppedElapsed = colD;
+            const parsed = parseElapsedSeconds(timerRow[3]);
+            if (parsed !== null) {
+              stoppedElapsed = parsed;
             } else if (startTime) {
               stoppedElapsed = Math.floor((new Date(timerRow[2]).getTime() - startTime) / 1000);
             } else {

@@ -4,6 +4,7 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import gsap from 'gsap';
 import { EVENTS, PHASES, type GameEvent } from '@/lib/events';
 import { calculateStats, getHighScores, type Stats, type HighScore } from '@/lib/scoring';
+import { parseElapsedSeconds } from '@/lib/timer-utils';
 import { useScoreEntry } from '@/hooks/useScoreEntry';
 import { useTimer } from '@/hooks/useTimer';
 import { Button, Input, ErrorMessage, StatBox, EventIcon } from '@/components/ui';
@@ -434,13 +435,8 @@ export default function EventsScreen({
           for (const tr of timerRows) {
             if (tr[0] === company && tr[1]) {
               if (tr[2]) {
-                let colD = Number(tr[3]);
-                // Parse H:MM:SS or HH:MM:SS format
-                if (isNaN(colD) && tr[3] && /^\d+:\d{2}:\d{2}$/.test(tr[3])) {
-                  const parts = tr[3].split(':').map(Number);
-                  colD = parts[0] * 3600 + parts[1] * 60 + parts[2];
-                }
-                timerSeconds = colD > 0 ? colD : Math.floor((new Date(tr[2]).getTime() - new Date(tr[1]).getTime()) / 1000);
+                const parsed = parseElapsedSeconds(tr[3]);
+                timerSeconds = parsed ?? Math.floor((new Date(tr[2]).getTime() - new Date(tr[1]).getTime()) / 1000);
               } else {
                 timerSeconds = Math.floor((Date.now() - new Date(tr[1]).getTime()) / 1000);
               }
