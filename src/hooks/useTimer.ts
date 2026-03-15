@@ -89,7 +89,26 @@ export function useTimer(company: string) {
   }, [loadTimer]);
 
   const startTimer = useCallback(async () => {
-    if (timerState.startTime) return; // Already started
+    if (timerState.startTime || timerState.stopped) return; // Already started or already stopped
+
+    // Double-check: fetch timer from sheet to prevent duplicate/overwrite
+    try {
+      const checkRes = await fetch('/api/sheets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'get', range: 'Timer!A:D' }),
+      });
+      const checkData = await checkRes.json();
+      if (checkRes.ok) {
+        const rows: string[][] = checkData.values || [];
+        const existing = rows.find(r => r[0] === company);
+        if (existing && existing[1]) {
+          // Timer already exists in sheet, don't create a new one
+          await loadTimer();
+          return;
+        }
+      }
+    } catch { /* continue */ }
 
     const now = new Date();
     try {
@@ -102,12 +121,11 @@ export function useTimer(company: string) {
           values: [[company, now.toISOString(), '', '']],
         }),
       });
-      // Reload to get the row number
       await loadTimer();
     } catch {
       // Silently fail
     }
-  }, [company, timerState.startTime, loadTimer]);
+  }, [company, timerState.startTime, timerState.stopped, loadTimer]);
 
   const stopTimer = useCallback(async (): Promise<number | null> => {
     if (!timerState.startTime || timerState.stopped || !timerState.row) return null;
