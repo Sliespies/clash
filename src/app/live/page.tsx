@@ -269,7 +269,7 @@ export default function LiveDashboard() {
                     </div>
                   </div>
                   <div className="font-mono text-xl font-bold tabular-nums shrink-0" style={{ color: medalColor || '#D1D5DB' }}>
-                    {formatTime(getTimerSeconds(c))}
+                    {formatTime(getTimerSeconds(c) + c.totaal)}
                   </div>
                 </div>
               );
