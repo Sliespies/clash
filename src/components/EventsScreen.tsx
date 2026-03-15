@@ -457,7 +457,7 @@ export default function EventsScreen({
       setStats(newStats);
       setHighScores(getHighScores(rows, EVENTS));
 
-      // Only sync completed events from API on initial load
+      // On initial load, use API data as source of truth (replaces localStorage)
       if (!initialLoadDone.current) {
         initialLoadDone.current = true;
         const done = new Set<string>();
@@ -469,11 +469,8 @@ export default function EventsScreen({
             }
           }
         }
-        setCompletedEvents(prev => {
-          const merged = new Set([...prev, ...done]);
-          localStorage.setItem(`clash-completed-${company}-${userName}`, JSON.stringify([...merged]));
-          return merged;
-        });
+        localStorage.setItem(`clash-completed-${company}-${userName}`, JSON.stringify([...done]));
+        setCompletedEvents(done);
       }
 
       if (statsRef.current) {
