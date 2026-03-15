@@ -97,7 +97,15 @@ export default function LiveDashboard() {
             startTime = new Date(timerRow[1]).getTime();
           }
           if (timerRow[2]) {
-            stoppedElapsed = Number(timerRow[3]) || 0;
+            // Use column D if available, otherwise calculate from start/stop times
+            const colD = Number(timerRow[3]);
+            if (colD > 0) {
+              stoppedElapsed = colD;
+            } else if (startTime) {
+              stoppedElapsed = Math.floor((new Date(timerRow[2]).getTime() - startTime) / 1000);
+            } else {
+              stoppedElapsed = 0;
+            }
           }
         }
 
@@ -261,7 +269,7 @@ export default function LiveDashboard() {
                     </div>
                   </div>
                   <div className="font-mono text-xl font-bold tabular-nums shrink-0" style={{ color: medalColor || '#D1D5DB' }}>
-                    {formatTime(getTimerSeconds(c) + c.totaal)}
+                    {formatTime(getTimerSeconds(c))}
                   </div>
                 </div>
               );
