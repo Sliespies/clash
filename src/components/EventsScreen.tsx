@@ -705,7 +705,7 @@ export default function EventsScreen({
             onSaved={handleSaved}
             onBack={backToList}
             timerStatus={timer.status}
-            onStop={() => timer.stopTimer(stats.totaal)}
+            onStop={() => timer.stopTimer(stats.totaal, stats.bonus, stats.straf)}
             allCompleted={completedEvents.size >= EVENTS.length}
             completedCount={completedEvents.size}
             totalCount={EVENTS.length}

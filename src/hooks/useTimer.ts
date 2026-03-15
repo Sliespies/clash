@@ -128,7 +128,7 @@ export function useTimer(company: string) {
     }
   }, [company, timerState.startTime, timerState.stopped, loadTimer]);
 
-  const stopTimer = useCallback(async (totaal?: number): Promise<number | null> => {
+  const stopTimer = useCallback(async (totaal?: number, bonus?: number, straf?: number): Promise<number | null> => {
     if (!timerState.startTime || timerState.stopped || !timerState.row) return null;
 
     const elapsedSeconds = Math.floor((Date.now() - timerState.startTime) / 1000);
@@ -148,8 +148,8 @@ export function useTimer(company: string) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'update',
-          range: `Timer!C${timerState.row}:D${timerState.row}`,
-          values: [[now, eindtotaalFormatted]],
+          range: `Timer!C${timerState.row}:F${timerState.row}`,
+          values: [[now, eindtotaalFormatted, bonus ?? '', straf ?? '']],
         }),
       });
       setTimerState(prev => ({ ...prev, stopped: true, elapsed: elapsedSeconds }));
