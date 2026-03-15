@@ -459,7 +459,8 @@ export default function EventsScreen({
           }
         }
       }
-      setCompletedEvents(done);
+      // Merge with existing completed events (never remove, only add)
+      setCompletedEvents(prev => new Set([...prev, ...done]));
 
       if (statsRef.current) {
         const from = prevStats.current;
@@ -548,6 +549,10 @@ export default function EventsScreen({
   };
 
   const handleSaved = () => {
+    // Mark current event as completed immediately (don't wait for re-fetch)
+    if (selectedEvent) {
+      setCompletedEvents(prev => new Set([...prev, selectedEvent.name]));
+    }
     loadStats();
     timer.loadTimer();
     backToList();
