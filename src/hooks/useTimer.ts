@@ -133,8 +133,14 @@ export function useTimer(company: string) {
 
     const elapsedSeconds = Math.floor((Date.now() - timerState.startTime) / 1000);
     const now = new Date().toISOString();
-    // Column D = eindtotaal (elapsed + straf - bonus), fallback to raw elapsed
-    const eindtotaal = totaal !== undefined ? elapsedSeconds + totaal : elapsedSeconds;
+    // Column D = eindtotaal (elapsed + straf - bonus) in HH:MM:SS format
+    const eindtotaalSec = totaal !== undefined ? elapsedSeconds + totaal : elapsedSeconds;
+    const abs = Math.abs(eindtotaalSec);
+    const sign = eindtotaalSec < 0 ? '-' : '';
+    const hh = String(Math.floor(abs / 3600)).padStart(2, '0');
+    const mm = String(Math.floor((abs % 3600) / 60)).padStart(2, '0');
+    const ss = String(Math.floor(abs % 60)).padStart(2, '0');
+    const eindtotaalFormatted = `${sign}${hh}:${mm}:${ss}`;
 
     try {
       await fetch('/api/sheets', {
@@ -143,7 +149,7 @@ export function useTimer(company: string) {
         body: JSON.stringify({
           action: 'update',
           range: `Timer!C${timerState.row}:D${timerState.row}`,
-          values: [[now, eindtotaal]],
+          values: [[now, eindtotaalFormatted]],
         }),
       });
       setTimerState(prev => ({ ...prev, stopped: true, elapsed: elapsedSeconds }));
