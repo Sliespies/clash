@@ -393,8 +393,14 @@ export default function EventsScreen({
   const [selectedEvent, setSelectedEvent] = useState<GameEvent | null>(null);
   const [showTimerStop, setShowTimerStop] = useState(false);
   const [stats, setStats] = useState<(Stats & { timer: number; finalTotaal: number }) | null>(null);
-  const [completedEvents, setCompletedEvents] = useState<Set<string>>(new Set());
+  const [completedEvents, setCompletedEvents] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem(`clash-completed-${company}-${userName}`);
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch { return new Set(); }
+  });
   const [highScores, setHighScores] = useState<Record<string, HighScore>>({});
+  const initialLoadDone = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const slideRef = useRef<HTMLDivElement>(null);
@@ -450,17 +456,24 @@ export default function EventsScreen({
       setStats(newStats);
       setHighScores(getHighScores(rows, EVENTS));
 
-      const done = new Set<string>();
-      for (const row of rows) {
-        if (row[0] === company && row[2]) {
-          const ev = EVENTS.find(e => e.name === row[2]);
-          if ((ev && ev.shared) || row[1] === userName) {
-            done.add(row[2]);
+      // Only sync completed events from API on initial load
+      if (!initialLoadDone.current) {
+        initialLoadDone.current = true;
+        const done = new Set<string>();
+        for (const row of rows) {
+          if (row[0] === company && row[2]) {
+            const ev = EVENTS.find(e => e.name === row[2]);
+            if ((ev && ev.shared) || row[1] === userName) {
+              done.add(row[2]);
+            }
           }
         }
+        setCompletedEvents(prev => {
+          const merged = new Set([...prev, ...done]);
+          localStorage.setItem(`clash-completed-${company}-${userName}`, JSON.stringify([...merged]));
+          return merged;
+        });
       }
-      // Merge with existing completed events (never remove, only add)
-      setCompletedEvents(prev => new Set([...prev, ...done]));
 
       if (statsRef.current) {
         const from = prevStats.current;
@@ -549,9 +562,13 @@ export default function EventsScreen({
   };
 
   const handleSaved = () => {
-    // Mark current event as completed immediately (don't wait for re-fetch)
+    // Mark current event as completed immediately and persist
     if (selectedEvent) {
-      setCompletedEvents(prev => new Set([...prev, selectedEvent.name]));
+      setCompletedEvents(prev => {
+        const updated = new Set([...prev, selectedEvent.name]);
+        localStorage.setItem(`clash-completed-${company}-${userName}`, JSON.stringify([...updated]));
+        return updated;
+      });
     }
     loadStats();
     timer.loadTimer();
