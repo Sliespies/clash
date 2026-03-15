@@ -185,75 +185,76 @@ export default function LiveDashboard() {
   const active = activeCompany ? companies.find(c => c.company === activeCompany) : null;
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-6 lg:p-10">
+    <div className="fixed inset-0 bg-gray-950 text-white p-6 lg:px-10 lg:py-6 flex flex-col overflow-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
-          <img src="/logo.svg" alt="Logo" className="h-12 lg:h-16 w-auto" />
+          <img src="/logo.svg" alt="Logo" className="h-12 lg:h-14 w-auto" />
           <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Live Scorebord</h1>
         </div>
         <div className="flex items-center gap-3">
           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-gray-500 text-sm">
+          <span className="text-gray-300 text-sm">
             {lastUpdate ? `Bijgewerkt ${lastUpdate.toLocaleTimeString('nl-BE')}` : ''}
           </span>
         </div>
       </div>
 
-      {/* Timer & Stats voor het actieve bedrijf */}
-      {active && (isRunning(active) || getTimerSeconds(active) > 0) && (
-          <div className="bg-gray-900 border border-amber-500/30 rounded-xl p-5 mb-8 flex items-center gap-6 max-w-xl">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                {isRunning(active) && <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />}
-                <span className="text-sm text-gray-400 font-medium">{active.company}</span>
-              </div>
-              <div className={`text-3xl font-bold tabular-nums ${
-                isRunning(active) ? 'text-amber-500' : 'text-emerald-500'
-              }`}>
-                {formatTime(getTimerSeconds(active))}
-              </div>
-            </div>
-            <div className="flex gap-5 text-sm">
-              <div className="text-center">
-                <div className="text-gray-600 text-xs mb-1">Bonus</div>
-                <div className="text-emerald-400 font-bold">{active.bonus}s</div>
-              </div>
-              <div className="text-center">
-                <div className="text-gray-600 text-xs mb-1">Straf</div>
-                <div className="text-red-400 font-bold">{active.straf}s</div>
-              </div>
-              <div className="text-center">
-                <div className="text-gray-600 text-xs mb-1">Totaal</div>
-                <div className="text-indigo-400 font-bold">{formatTime(getTimerSeconds(active) + active.totaal)}</div>
-              </div>
-            </div>
-          </div>
-      )}
-
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 flex-1 min-h-0">
         {/* Klassement */}
-        <div className="xl:col-span-1">
-          <h2 className="text-lg font-semibold text-gray-400 uppercase tracking-wide mb-4">Klassement</h2>
-          <div className="space-y-3">
+        <div className="xl:col-span-1 flex flex-col">
+          <h2 className="text-base font-semibold text-white uppercase tracking-wide mb-3">Klassement</h2>
+
+          {/* Timer & Stats voor het actieve bedrijf */}
+          {active && (isRunning(active) || getTimerSeconds(active) > 0) && (
+            <div className="bg-gray-900 border border-amber-500/30 rounded-xl p-4 mb-3 flex items-center gap-5">
+              <div>
+                <div className="flex items-center gap-2 mb-0.5">
+                  {isRunning(active) && <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />}
+                  <span className="text-xs text-gray-200 font-medium">{active.company}</span>
+                </div>
+                <div className={`text-3xl font-bold tabular-nums ${
+                  isRunning(active) ? 'text-amber-500' : 'text-emerald-500'
+                }`}>
+                  {formatTime(getTimerSeconds(active))}
+                </div>
+              </div>
+              <div className="flex gap-4 text-sm">
+                <div className="text-center">
+                  <div className="text-gray-300 text-xs">Bonus</div>
+                  <div className="text-emerald-400 font-bold">{active.bonus}s</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-gray-300 text-xs">Straf</div>
+                  <div className="text-red-400 font-bold">{active.straf}s</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-gray-300 text-xs">Totaal</div>
+                  <div className="text-indigo-400 font-bold">{formatTime(getTimerSeconds(active) + active.totaal)}</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="flex-1 flex flex-col justify-evenly gap-2">
             {companies.map((c, i) => {
               const rank = i + 1;
               const medalColor = rank <= 3 ? MEDAL_COLORS[rank - 1] : undefined;
               return (
                 <div
                   key={c.company}
-                  className="bg-gray-900 rounded-xl px-5 py-4 flex items-center gap-4"
+                  className="bg-gray-900 rounded-xl px-4 py-3 flex items-center gap-4"
                   style={medalColor ? { borderLeft: `4px solid ${medalColor}` } : { borderLeft: '4px solid transparent' }}
                 >
                   <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shrink-0"
-                    style={{ backgroundColor: medalColor || '#374151', color: medalColor ? '#111' : '#9CA3AF' }}
+                    className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-base shrink-0"
+                    style={{ backgroundColor: medalColor || '#374151', color: medalColor ? '#111' : '#E5E7EB' }}
                   >
                     {rank}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-base truncate">{c.company}</div>
-                    <div className="text-xs text-gray-500 mt-0.5">
+                    <div className="text-xs text-gray-300">
                       Bonus {c.bonus}s &middot; Straf {c.straf}s
                       {isRunning(c) && <span className="text-amber-500 ml-2">&#9679; Timer loopt</span>}
                       {!isRunning(c) && getTimerSeconds(c) > 0 && <span className="text-emerald-500 ml-2">&#10003; Klaar</span>}
@@ -266,77 +267,68 @@ export default function LiveDashboard() {
               );
             })}
             {companies.length === 0 && (
-              <p className="text-gray-600 text-center py-8">Nog geen teams gestart</p>
+              <p className="text-gray-400 text-center py-4">Nog geen teams gestart</p>
             )}
           </div>
         </div>
 
         {/* Scores per challenge */}
-        <div className="xl:col-span-2">
-          <h2 className="text-lg font-semibold text-gray-400 uppercase tracking-wide mb-4">Scores per Challenge</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-800">
-                  <th className="text-left py-3 px-3 text-gray-500 font-medium">Challenge</th>
-                  {active && (
-                    <th className="text-center py-3 px-3 text-gray-300 font-semibold">{active.company}</th>
-                  )}
-                  <th className="text-center py-3 px-3 text-amber-500 font-semibold min-w-[130px]">High Score</th>
-                </tr>
-              </thead>
-              <tbody>
-                {EVENTS.map((event) => {
-                  const hs = highScores[event.name];
-                  const myScore = active?.scores[event.name];
-                  const isBest = myScore && hs && myScore.best === hs.score;
+        <div className="xl:col-span-2 flex flex-col">
+          <h2 className="text-base font-semibold text-white uppercase tracking-wide mb-3">Scores per Challenge</h2>
+          <table className="w-full text-base flex-1">
+            <thead>
+              <tr className="border-b border-gray-800">
+                <th className="text-left py-2 px-3 text-gray-300 font-medium">Challenge</th>
+                {active && (
+                  <th className="text-center py-2 px-3 text-gray-300 font-semibold">{active.company}</th>
+                )}
+                <th className="text-center py-2 px-3 text-amber-500 font-semibold">High Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {EVENTS.map((event) => {
+                const hs = highScores[event.name];
+                const myScore = active?.scores[event.name];
+                const isBest = myScore && hs && myScore.best === hs.score;
 
-                  return (
-                    <tr key={event.name} className="border-b border-gray-800/50 hover:bg-gray-900/50">
-                      <td className="py-3 px-3">
-                        <div className="flex items-center gap-2">
-                          <img src={event.icon} alt="" className="w-5 h-5 invert opacity-60" />
-                          <span className="font-medium">{event.name}</span>
-                        </div>
-                      </td>
-                      {active && (
-                        <td className="text-center py-3 px-3">
-                          {myScore ? (
-                            <div>
-                              <span className={`font-mono font-semibold ${isBest ? 'text-emerald-400' : 'text-gray-300'}`}>
-                                {myScore.best}{event.type === 'time' ? 's' : ''}
-                              </span>
-                              {event.needsParticipants && myScore.participants > 0 && (
-                                <div className="text-[0.65rem] text-gray-600 mt-0.5">
-                                  {myScore.participants} deelnemer{myScore.participants !== 1 ? 's' : ''}
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            <span className="text-gray-700">—</span>
-                          )}
-                        </td>
-                      )}
-                      <td className="text-center py-3 px-3">
-                        {hs ? (
-                          <div>
-                            <span className="font-mono font-bold text-amber-400">
-                              {hs.score}{event.type === 'time' ? 's' : ''}
-                            </span>
-                            <div className="text-[0.65rem] text-gray-500 mt-0.5">
-                              {hs.company}
-                            </div>
-                          </div>
+                return (
+                  <tr key={event.name} className="border-b border-gray-800/50">
+                    <td className="py-2 px-3">
+                      <div className="flex items-center gap-2">
+                        <img src={event.icon} alt="" className="w-5 h-5 invert opacity-80" />
+                        <span className="font-medium">{event.name}</span>
+                      </div>
+                    </td>
+                    {active && (
+                      <td className="text-center py-2 px-3">
+                        {myScore ? (
+                          <span className={`font-mono font-semibold ${isBest ? 'text-emerald-400' : 'text-gray-300'}`}>
+                            {myScore.best}{event.type === 'time' ? 's' : ''}
+                          </span>
                         ) : (
-                          <span className="text-gray-700">—</span>
+                          <span className="text-gray-500">—</span>
                         )}
                       </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                    )}
+                    <td className="text-center py-2 px-3">
+                      {hs ? (
+                        <div>
+                          <span className="font-mono font-bold text-amber-400">
+                            {hs.score}{event.type === 'time' ? 's' : ''}
+                          </span>
+                          <span className="text-xs text-gray-300 ml-2">
+                            {hs.company}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-gray-500">—</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
