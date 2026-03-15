@@ -54,20 +54,6 @@ export interface HighScore {
   company: string;
 }
 
-const DEFAULT_HIGH_SCORES: Record<string, number> = {
-  Blazepods: 45,
-  Copycat: 35,
-  Fietsen: 43,
-  VR: 3,
-  Icaros: 15,
-  Firewall: 2,
-  Axethrowing: 170,
-  Piccoo: 3,
-  PacMan: 2436,
-  Streetracket: 9,
-  Roeien: 4598,
-};
-
 export function getHighScores(
   rows: string[][],
   events: { name: string; type: 'time' | 'number' }[]
@@ -75,10 +61,9 @@ export function getHighScores(
   const result: Record<string, HighScore> = {};
 
   for (const event of events) {
-    const defaultScore = DEFAULT_HIGH_SCORES[event.name];
-    let bestScore: number | null = defaultScore ?? null;
-    let bestName = defaultScore != null ? 'Target' : '';
-    let bestCompany = defaultScore != null ? 'Target' : '';
+    let bestScore: number | null = null;
+    let bestName = '';
+    let bestCompany = '';
 
     for (const row of rows) {
       if (row[2] !== event.name) continue;
