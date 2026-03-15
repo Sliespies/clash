@@ -434,7 +434,8 @@ export default function EventsScreen({
           for (const tr of timerRows) {
             if (tr[0] === company && tr[1]) {
               if (tr[2]) {
-                timerSeconds = Number(tr[3]) || 0;
+                const colD = Number(tr[3]);
+                timerSeconds = colD > 0 ? colD : Math.floor((new Date(tr[2]).getTime() - new Date(tr[1]).getTime()) / 1000);
               } else {
                 timerSeconds = Math.floor((Date.now() - new Date(tr[1]).getTime()) / 1000);
               }
