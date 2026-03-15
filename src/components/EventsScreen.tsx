@@ -4,7 +4,6 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import gsap from 'gsap';
 import { EVENTS, PHASES, type GameEvent } from '@/lib/events';
 import { calculateStats, getHighScores, type Stats, type HighScore } from '@/lib/scoring';
-import { parseElapsedSeconds } from '@/lib/timer-utils';
 import { useScoreEntry } from '@/hooks/useScoreEntry';
 import { useTimer } from '@/hooks/useTimer';
 import { Button, Input, ErrorMessage, StatBox, EventIcon } from '@/components/ui';
@@ -435,8 +434,8 @@ export default function EventsScreen({
           for (const tr of timerRows) {
             if (tr[0] === company && tr[1]) {
               if (tr[2]) {
-                const parsed = parseElapsedSeconds(tr[3]);
-                timerSeconds = parsed ?? Math.floor((new Date(tr[2]).getTime() - new Date(tr[1]).getTime()) / 1000);
+                // Calculate elapsed from start/stop times
+                timerSeconds = Math.floor((new Date(tr[2]).getTime() - new Date(tr[1]).getTime()) / 1000);
               } else {
                 timerSeconds = Math.floor((Date.now() - new Date(tr[1]).getTime()) / 1000);
               }
@@ -706,7 +705,7 @@ export default function EventsScreen({
             onSaved={handleSaved}
             onBack={backToList}
             timerStatus={timer.status}
-            onStop={timer.stopTimer}
+            onStop={() => timer.stopTimer(stats.totaal)}
             allCompleted={completedEvents.size >= EVENTS.length}
             completedCount={completedEvents.size}
             totalCount={EVENTS.length}

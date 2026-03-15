@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { EVENTS } from '@/lib/events';
 import { calculateStats } from '@/lib/scoring';
-import { parseElapsedSeconds } from '@/lib/timer-utils';
 
 interface CompanyData {
   company: string;
@@ -98,11 +97,8 @@ export default function LiveDashboard() {
             startTime = new Date(timerRow[1]).getTime();
           }
           if (timerRow[2]) {
-            // Use column D if available, otherwise calculate from start/stop times
-            const parsed = parseElapsedSeconds(timerRow[3]);
-            if (parsed !== null) {
-              stoppedElapsed = parsed;
-            } else if (startTime) {
+            // Calculate elapsed from start/stop times
+            if (startTime) {
               stoppedElapsed = Math.floor((new Date(timerRow[2]).getTime() - startTime) / 1000);
             } else {
               stoppedElapsed = 0;

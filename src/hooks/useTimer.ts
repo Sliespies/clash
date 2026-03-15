@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { parseElapsedSeconds } from '@/lib/timer-utils';
 
 interface TimerState {
   startTime: number | null;
@@ -41,8 +40,8 @@ export function useTimer(company: string) {
         if (rows[i][0] === company) {
           const startTime = new Date(rows[i][1]).getTime();
           if (rows[i][2]) {
-            const parsed = parseElapsedSeconds(rows[i][3]);
-            const elapsed = parsed ?? Math.floor((new Date(rows[i][2]).getTime() - startTime) / 1000);
+            // Calculate elapsed from start/stop times (column D now stores eindtotaal)
+            const elapsed = Math.floor((new Date(rows[i][2]).getTime() - startTime) / 1000);
             setTimerState({ startTime, stopped: true, elapsed, row: i + 1 });
           } else {
             setTimerState({ startTime, stopped: false, elapsed: null, row: i + 1 });
@@ -129,11 +128,13 @@ export function useTimer(company: string) {
     }
   }, [company, timerState.startTime, timerState.stopped, loadTimer]);
 
-  const stopTimer = useCallback(async (): Promise<number | null> => {
+  const stopTimer = useCallback(async (totaal?: number): Promise<number | null> => {
     if (!timerState.startTime || timerState.stopped || !timerState.row) return null;
 
     const elapsedSeconds = Math.floor((Date.now() - timerState.startTime) / 1000);
     const now = new Date().toISOString();
+    // Column D = eindtotaal (elapsed + straf - bonus), fallback to raw elapsed
+    const eindtotaal = totaal !== undefined ? elapsedSeconds + totaal : elapsedSeconds;
 
     try {
       await fetch('/api/sheets', {
@@ -142,7 +143,7 @@ export function useTimer(company: string) {
         body: JSON.stringify({
           action: 'update',
           range: `Timer!C${timerState.row}:D${timerState.row}`,
-          values: [[now, elapsedSeconds]],
+          values: [[now, eindtotaal]],
         }),
       });
       setTimerState(prev => ({ ...prev, stopped: true, elapsed: elapsedSeconds }));
