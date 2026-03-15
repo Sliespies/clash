@@ -40,7 +40,15 @@ export function useTimer(company: string) {
         if (rows[i][0] === company) {
           const startTime = new Date(rows[i][1]).getTime();
           if (rows[i][2]) {
-            const elapsed = Number(rows[i][3]) || Math.floor((new Date(rows[i][2]).getTime() - startTime) / 1000);
+            let elapsed = Number(rows[i][3]);
+            // Parse H:MM:SS or HH:MM:SS format
+            if (isNaN(elapsed) && rows[i][3] && /^\d+:\d{2}:\d{2}$/.test(rows[i][3])) {
+              const parts = rows[i][3].split(':').map(Number);
+              elapsed = parts[0] * 3600 + parts[1] * 60 + parts[2];
+            }
+            if (!elapsed || elapsed <= 0) {
+              elapsed = Math.floor((new Date(rows[i][2]).getTime() - startTime) / 1000);
+            }
             setTimerState({ startTime, stopped: true, elapsed, row: i + 1 });
           } else {
             setTimerState({ startTime, stopped: false, elapsed: null, row: i + 1 });
