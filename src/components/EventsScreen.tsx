@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react';
 import gsap from 'gsap';
-import { EVENTS, type GameEvent } from '@/lib/events';
+import { EVENTS, PHASES, type GameEvent } from '@/lib/events';
 import { calculateStats, getHighScores, type Stats, type HighScore } from '@/lib/scoring';
 import { useScoreEntry } from '@/hooks/useScoreEntry';
 import { useTimer } from '@/hooks/useTimer';
@@ -12,6 +12,7 @@ import Confetti from '@/components/ui/Confetti';
 interface EventsScreenProps {
   company: string;
   userName: string;
+  participants?: string[];
   onDone: () => void;
   onBack: () => void;
   showToast: (msg: string) => void;
@@ -21,6 +22,7 @@ function ScoreInput({
   event,
   company,
   userName,
+  participants = [],
   showToast,
   onSaved,
   onBack,
@@ -31,6 +33,7 @@ function ScoreInput({
   event: GameEvent;
   company: string;
   userName: string;
+  participants?: string[];
   showToast: (msg: string) => void;
   onSaved: () => void;
   onBack: () => void;
@@ -38,21 +41,121 @@ function ScoreInput({
   highScore?: HighScore;
   onTimerStart?: () => Promise<void>;
 }) {
-  const { value, setValue, saving, error, existingInfo, loading, handleSave } =
+  const { value, setValue, saving, error, setError, existingInfo, loading, handleSave } =
     useScoreEntry({ event, company, userName });
   const inputRef = useRef<HTMLInputElement>(null);
+  const [selectedParticipants, setSelectedParticipants] = useState<Set<string>>(new Set());
+  const [savingParticipants, setSavingParticipants] = useState(false);
+
+  const needsParticipants = event.needsParticipants && participants.length > 0;
 
   useEffect(() => {
     const t = setTimeout(() => inputRef.current?.focus(), 350);
     return () => clearTimeout(t);
   }, []);
 
+  // Load existing participants for shared events
+  useEffect(() => {
+    if (!needsParticipants) return;
+    (async () => {
+      try {
+        const res = await fetch('/api/sheets', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get', range: 'Scores!A:E' }),
+        });
+        const data = await res.json();
+        if (!res.ok) return;
+        const rows: string[][] = data.values || [];
+        const existing = new Set<string>();
+        for (const row of rows) {
+          if (row[0] === company && row[2] === event.name) {
+            existing.add(row[1]);
+          }
+        }
+        setSelectedParticipants(existing);
+      } catch {
+        // ignore
+      }
+    })();
+  }, [company, event.name, needsParticipants]);
+
+  const toggleParticipant = (name: string) => {
+    setSelectedParticipants(prev => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  };
+
   const onSave = async () => {
-    const success = await handleSave();
-    if (success) {
-      if (onTimerStart) await onTimerStart();
-      showToast('Score opgeslagen!');
-      onSaved();
+    if (!value.trim() || isNaN(Number(value)) || Number(value) < 0) {
+      setError('Voer een geldig getal in.');
+      return;
+    }
+
+    if (needsParticipants) {
+      // Save one row per selected participant
+      setSavingParticipants(true);
+      try {
+        // First delete existing rows for this event/company
+        const getRes = await fetch('/api/sheets', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get', range: 'Scores!A:E' }),
+        });
+        const getData = await getRes.json();
+        const rows: string[][] = getData.values || [];
+
+        // Find and clear existing rows for this company+event (update with empty)
+        for (let i = rows.length - 1; i >= 0; i--) {
+          if (rows[i][0] === company && rows[i][2] === event.name) {
+            await fetch('/api/sheets', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                action: 'update',
+                range: `Scores!A${i + 1}:E${i + 1}`,
+                values: [['', '', '', '', '']],
+              }),
+            });
+          }
+        }
+
+        // Append new rows for each selected participant
+        const timestamp = new Date().toLocaleString('nl-BE');
+        const newRows = [...selectedParticipants].map(p => [
+          company, p, event.name, Number(value), timestamp,
+        ]);
+
+        if (newRows.length > 0) {
+          await fetch('/api/sheets', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'append',
+              range: 'Scores!A:E',
+              values: newRows,
+            }),
+          });
+        }
+
+        if (onTimerStart) await onTimerStart();
+        showToast('Score opgeslagen!');
+        onSaved();
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Opslaan mislukt');
+      } finally {
+        setSavingParticipants(false);
+      }
+    } else {
+      const success = await handleSave();
+      if (success) {
+        if (onTimerStart) await onTimerStart();
+        showToast('Score opgeslagen!');
+        onSaved();
+      }
     }
   };
 
@@ -93,6 +196,33 @@ function ScoreInput({
         />
       </div>
 
+      {needsParticipants && (
+        <div className="w-full mt-3 mb-1">
+          <div className="text-xs text-gray-400 mb-2 text-left">Deelnemers die hebben meegedaan</div>
+          <div className="space-y-1.5">
+            {participants.map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => toggleParticipant(p)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-sm transition-all ${
+                  selectedParticipants.has(p)
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    : 'bg-gray-50 text-gray-600 border border-transparent'
+                }`}
+              >
+                <span className={`w-5 h-5 rounded flex items-center justify-center text-xs shrink-0 ${
+                  selectedParticipants.has(p)
+                    ? 'bg-emerald-500 text-white'
+                    : 'bg-gray-200 text-transparent'
+                }`}>✓</span>
+                {p}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {loading && (
         <p className="text-gray-400 text-sm mt-1">Score ophalen...</p>
       )}
@@ -105,11 +235,11 @@ function ScoreInput({
         </Button>
         <Button
           variant="success"
-          disabled={saving || loading}
+          disabled={saving || savingParticipants || loading}
           onClick={onSave}
           className="!w-auto flex-[2]"
         >
-          {saving ? 'Opslaan...' : 'Opslaan'}
+          {saving || savingParticipants ? 'Opslaan...' : 'Opslaan'}
         </Button>
       </div>
     </div>
@@ -255,6 +385,7 @@ function formatTime(seconds: number): string {
 export default function EventsScreen({
   company,
   userName,
+  participants = [],
   onDone,
   onBack,
   showToast,
@@ -488,33 +619,51 @@ export default function EventsScreen({
                 Kies een activiteit ({completedEvents.size}/{EVENTS.length})
               </p>
 
-              <div ref={listRef} className="flex flex-wrap gap-2">
-                {EVENTS.map((event) => {
-                  const done = completedEvents.has(event.name);
+              <div ref={listRef} className="space-y-4">
+                {PHASES.map(({ phase, label, color }) => {
+                  const phaseEvents = EVENTS.filter(e => e.phase === phase);
+                  if (phaseEvents.length === 0) return null;
                   return (
-                    <button
-                      key={event.name}
-                      onClick={() => selectEvent(event)}
-                      className={`flex items-center gap-2 px-3.5 py-2.5 rounded-full text-left transition-all cursor-pointer border-none ${
-                        done
-                          ? 'bg-emerald-50 hover:bg-emerald-100'
-                          : 'bg-gray-50 hover:bg-gray-100'
-                      }`}
-                    >
-                      <EventIcon icon={event.icon} className="text-base" />
-                      <span className="text-sm font-medium text-gray-800">{event.name}</span>
-                      {done && <span className="text-emerald-500 text-xs ml-0.5">✓</span>}
-                      {done && <span className="text-emerald-400 text-[0.65rem] ml-0.5">Verbeter de high score</span>}
-                    </button>
+                    <div key={String(phase)}>
+                      <div className={`text-xs font-semibold uppercase tracking-wide mb-1.5 ${color}`}>
+                        {label}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {phaseEvents.map((event) => {
+                          const done = completedEvents.has(event.name);
+                          return (
+                            <button
+                              key={event.name}
+                              onClick={() => selectEvent(event)}
+                              className={`flex items-center gap-2 px-3.5 py-2.5 rounded-full text-left transition-all cursor-pointer border-none ${
+                                done
+                                  ? 'bg-emerald-50 hover:bg-emerald-100'
+                                  : 'bg-gray-50 hover:bg-gray-100'
+                              }`}
+                            >
+                              <EventIcon icon={event.icon} className="text-base" />
+                              <span className="text-sm font-medium text-gray-800">{event.name}</span>
+                              {done && <span className="text-emerald-500 text-xs ml-0.5">✓</span>}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
                   );
                 })}
-                <button
-                  onClick={() => selectEvent('timer')}
-                  className="flex items-center gap-2 px-3.5 py-2.5 rounded-full text-left transition-all cursor-pointer border-none bg-amber-50 hover:bg-amber-100"
-                >
-                  <EventIcon icon="/timer.svg" className="text-base" />
-                  <span className="text-sm font-medium text-amber-700">Timer Stoppen</span>
-                </button>
+
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-wide mb-1.5 text-amber-600">Afsluiting</div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => selectEvent('timer')}
+                      className="flex items-center gap-2 px-3.5 py-2.5 rounded-full text-left transition-all cursor-pointer border-none bg-amber-50 hover:bg-amber-100"
+                    >
+                      <EventIcon icon="/timer.svg" className="text-base" />
+                      <span className="text-sm font-medium text-amber-700">Timer Stoppen</span>
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <button
@@ -546,6 +695,7 @@ export default function EventsScreen({
             event={selectedEvent}
             company={company}
             userName={userName}
+            participants={participants}
             showToast={showToast}
             onSaved={handleSaved}
             onBack={backToList}

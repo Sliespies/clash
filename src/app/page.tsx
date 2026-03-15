@@ -14,6 +14,7 @@ export default function Home() {
   const [screen, setScreen] = useState<Screen>('setup');
   const [company, setCompany] = useState('');
   const [userName, setUserName] = useState('');
+  const [participants, setParticipants] = useState<string[]>([]);
   const [toastMsg, setToastMsg] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
   const [ready, setReady] = useState(false);
@@ -22,10 +23,11 @@ export default function Home() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        const { company: c, userName: u } = JSON.parse(saved);
+        const { company: c, userName: u, participants: p } = JSON.parse(saved);
         if (c && u) {
           setCompany(c);
           setUserName(u);
+          setParticipants(p || []);
           setScreen('events');
         }
       }
@@ -38,11 +40,11 @@ export default function Home() {
   useEffect(() => {
     if (!ready) return;
     if (company && userName) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ company, userName }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ company, userName, participants }));
     } else {
       localStorage.removeItem(STORAGE_KEY);
     }
-  }, [company, userName, ready]);
+  }, [company, userName, participants, ready]);
 
   const showToast = useCallback((msg: string) => {
     setToastMsg(msg);
@@ -56,6 +58,7 @@ export default function Home() {
   const handleReset = () => {
     setCompany('');
     setUserName('');
+    setParticipants([]);
     setScreen('setup');
   };
 
@@ -70,9 +73,10 @@ export default function Home() {
       <Card>
         {screen === 'setup' && (
           <SetupScreen
-            onNext={(c, n) => {
+            onNext={(c, n, p) => {
               setCompany(c);
               setUserName(n);
+              setParticipants(p);
               setScreen('events');
             }}
           />
@@ -82,6 +86,7 @@ export default function Home() {
           <EventsScreen
             company={company}
             userName={userName}
+            participants={participants}
             onDone={handleReset}
             onBack={handleReset}
             showToast={showToast}

@@ -5,13 +5,14 @@ import gsap from 'gsap';
 import { Button, Select, Input, Label, Subtitle, ErrorMessage } from '@/components/ui';
 
 interface SetupScreenProps {
-  onNext: (company: string, name: string) => void;
+  onNext: (company: string, name: string, participants: string[]) => void;
 }
 
 export default function SetupScreen({ onNext }: SetupScreenProps) {
   const [companies, setCompanies] = useState<string[]>([]);
   const [selected, setSelected] = useState('');
   const [name, setName] = useState('');
+  const [participants, setParticipants] = useState<string[]>(['', '', '']);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
@@ -43,9 +44,29 @@ export default function SetupScreen({ onNext }: SetupScreenProps) {
     })();
   }, []);
 
+  const filledParticipants = participants.filter(p => p.trim());
+
+  const updateParticipant = (index: number, value: string) => {
+    const updated = [...participants];
+    updated[index] = value;
+    setParticipants(updated);
+  };
+
+  const addParticipant = () => {
+    if (participants.length < 6) {
+      setParticipants([...participants, '']);
+    }
+  };
+
+  const removeParticipant = (index: number) => {
+    if (participants.length > 3) {
+      setParticipants(participants.filter((_, i) => i !== index));
+    }
+  };
+
   const handleSubmit = () => {
-    if (selected && name.trim()) {
-      onNext(selected, name.trim());
+    if (selected && name.trim() && filledParticipants.length >= 3) {
+      onNext(selected, name.trim(), filledParticipants);
     }
   };
 
@@ -61,18 +82,50 @@ export default function SetupScreen({ onNext }: SetupScreenProps) {
         options={companies.map((c) => ({ value: c, label: c }))}
       />
 
-      <Label className="mt-4">Naam</Label>
+      <Label className="mt-4">Naam van de trainer</Label>
       <Input
         ref={inputRef}
         type="text"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-        placeholder="Je volledige naam"
+        placeholder="Naam trainer"
       />
 
+      <Label className="mt-4">Deelnemers ({filledParticipants.length}/6)</Label>
+      <div className="space-y-2">
+        {participants.map((p, i) => (
+          <div key={i} className="flex gap-2">
+            <Input
+              type="text"
+              value={p}
+              onChange={(e) => updateParticipant(i, e.target.value)}
+              placeholder={`Deelnemer ${i + 1}`}
+              className="flex-1"
+            />
+            {participants.length > 3 && (
+              <button
+                type="button"
+                onClick={() => removeParticipant(i)}
+                className="text-gray-400 hover:text-red-500 text-lg px-2 transition-colors"
+              >
+                &times;
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+      {participants.length < 6 && (
+        <button
+          type="button"
+          onClick={addParticipant}
+          className="text-sm text-[#04A4F2] hover:underline mt-2"
+        >
+          + Deelnemer toevoegen
+        </button>
+      )}
+
       <Button
-        disabled={!selected || !name.trim()}
+        disabled={!selected || !name.trim() || filledParticipants.length < 3}
         onClick={handleSubmit}
         className="mt-6"
       >

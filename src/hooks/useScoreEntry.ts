@@ -103,5 +103,5 @@ export function useScoreEntry({ event, company, userName }: UseScoreEntryProps) 
     }
   }, [value, company, userName, event, existingRow]);
 
-  return { value, setValue, saving, error, existingInfo, loading, handleSave };
+  return { value, setValue, saving, error, setError, existingInfo, loading, handleSave };
 }

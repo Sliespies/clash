@@ -33,7 +33,7 @@ export function calculateStats(rows: string[][], company: string): Stats {
     (has('VR') ? maxScore('VR') * 30 + uniqueNames('VR') * 30 : 0) +
     (has('Icaros') ? 30 * (maxScore('Icaros') + uniqueNames('Icaros')) : 0) +
     (has('Firewall') ? Math.min(maxScore('Firewall') * 10, 90) : 0) +
-    (has('MakeyMakey') ? (maxScore('MakeyMakey') > 0 ? 30 : 0) : 0) +
+    (has('PacMan') ? (maxScore('PacMan') > 0 ? 30 : 0) : 0) +
     (has('Streetracket') ? maxScore('Streetracket') * 30 + 30 : 0) +
     (has('Copycat') ? maxScore('Copycat') : 0) +
     (has('Roeien') ? Math.floor(maxScore('Roeien') / 5) : 0);
@@ -63,7 +63,7 @@ const DEFAULT_HIGH_SCORES: Record<string, number> = {
   Firewall: 2,
   Axethrowing: 170,
   Piccoo: 3,
-  MakeyMakey: 2436,
+  PacMan: 2436,
   Streetracket: 9,
   Roeien: 4598,
 };
