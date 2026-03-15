@@ -69,7 +69,7 @@ export default function LiveDashboard() {
         fetch('/api/sheets', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'get', range: 'Timer!A:D' }),
+          body: JSON.stringify({ action: 'get', range: 'Timer!A:D', valueRenderOption: 'UNFORMATTED_VALUE', dateTimeRenderOption: 'FORMATTED_STRING' }),
         }),
       ]);
 
@@ -84,7 +84,7 @@ export default function LiveDashboard() {
       const companyNames = [...new Set([
         ...timerRows.map(r => r[0]),
         ...scoreRows.map(r => r[0]),
-      ].filter(v => v && v !== 'Company' && v !== 'Bedrijf'))];
+      ].filter(v => v && v !== 'Company' && v !== 'Bedrijf' && v !== 'Bedrijfsnaam'))];
 
       const data: CompanyData[] = companyNames.map((company) => {
         const { bonus, straf, totaal } = calculateStats(scoreRows, company);

@@ -48,9 +48,13 @@ async function getAccessToken(): Promise<string> {
   return cachedToken!;
 }
 
-export async function sheetsGet(range: string) {
+export async function sheetsGet(range: string, options?: { valueRenderOption?: string; dateTimeRenderOption?: string }) {
   const token = await getAccessToken();
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${getSheetId()}/values/${range}`;
+  const searchParams = new URLSearchParams();
+  if (options?.valueRenderOption) searchParams.set('valueRenderOption', options.valueRenderOption);
+  if (options?.dateTimeRenderOption) searchParams.set('dateTimeRenderOption', options.dateTimeRenderOption);
+  const qs = searchParams.toString();
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${getSheetId()}/values/${range}${qs ? `?${qs}` : ''}`;
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
   });

@@ -426,7 +426,7 @@ export default function EventsScreen({
         const timerRes = await fetch('/api/sheets', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'get', range: 'Timer!A:D' }),
+          body: JSON.stringify({ action: 'get', range: 'Timer!A:D', valueRenderOption: 'UNFORMATTED_VALUE', dateTimeRenderOption: 'FORMATTED_STRING' }),
         });
         const timerData = await timerRes.json();
         if (timerRes.ok) {

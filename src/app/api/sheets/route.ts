@@ -4,11 +4,14 @@ import { sheetsGet, sheetsAppend, sheetsUpdate } from '@/lib/sheets';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { action, range, values } = body;
+    const { action, range, values, valueRenderOption, dateTimeRenderOption } = body;
 
     switch (action) {
       case 'get': {
-        const data = await sheetsGet(range);
+        const opts = (valueRenderOption || dateTimeRenderOption)
+          ? { valueRenderOption, dateTimeRenderOption }
+          : undefined;
+        const data = await sheetsGet(range, opts);
         return NextResponse.json(data);
       }
       case 'append': {

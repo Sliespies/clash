@@ -31,7 +31,7 @@ export function useTimer(company: string) {
       const res = await fetch('/api/sheets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'get', range: 'Timer!A:D' }),
+        body: JSON.stringify({ action: 'get', range: 'Timer!A:D', valueRenderOption: 'UNFORMATTED_VALUE', dateTimeRenderOption: 'FORMATTED_STRING' }),
       });
       const data = await res.json();
       if (!res.ok) return;
@@ -97,7 +97,7 @@ export function useTimer(company: string) {
       const checkRes = await fetch('/api/sheets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'get', range: 'Timer!A:D' }),
+        body: JSON.stringify({ action: 'get', range: 'Timer!A:D', valueRenderOption: 'UNFORMATTED_VALUE', dateTimeRenderOption: 'FORMATTED_STRING' }),
       });
       const checkData = await checkRes.json();
       if (checkRes.ok) {
