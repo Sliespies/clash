@@ -12,7 +12,7 @@ export default function SetupScreen({ onNext }: SetupScreenProps) {
   const [companies, setCompanies] = useState<string[]>([]);
   const [selected, setSelected] = useState('');
   const [name, setName] = useState('');
-  const [participants, setParticipants] = useState<string[]>(['', '', '']);
+  const [participants, setParticipants] = useState<string[]>(['']);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
@@ -53,19 +53,19 @@ export default function SetupScreen({ onNext }: SetupScreenProps) {
   };
 
   const addParticipant = () => {
-    if (participants.length < 6) {
+    if (participants.length < 10) {
       setParticipants([...participants, '']);
     }
   };
 
   const removeParticipant = (index: number) => {
-    if (participants.length > 3) {
+    if (participants.length > 1) {
       setParticipants(participants.filter((_, i) => i !== index));
     }
   };
 
   const handleSubmit = () => {
-    if (selected && name.trim() && filledParticipants.length >= 3) {
+    if (selected && name.trim() && filledParticipants.length >= 1) {
       onNext(selected, name.trim(), filledParticipants);
     }
   };
@@ -91,7 +91,7 @@ export default function SetupScreen({ onNext }: SetupScreenProps) {
         placeholder="Naam trainer"
       />
 
-      <Label className="mt-4">Deelnemers ({filledParticipants.length}/6)</Label>
+      <Label className="mt-4">Deelnemers ({filledParticipants.length}/{participants.length})</Label>
       <div className="space-y-2">
         {participants.map((p, i) => (
           <div key={i} className="flex gap-2">
@@ -102,7 +102,7 @@ export default function SetupScreen({ onNext }: SetupScreenProps) {
               placeholder={`Deelnemer ${i + 1}`}
               className="flex-1"
             />
-            {participants.length > 3 && (
+            {participants.length > 1 && (
               <button
                 type="button"
                 onClick={() => removeParticipant(i)}
@@ -114,7 +114,7 @@ export default function SetupScreen({ onNext }: SetupScreenProps) {
           </div>
         ))}
       </div>
-      {participants.length < 6 && (
+      {participants.length < 10 && (
         <button
           type="button"
           onClick={addParticipant}
@@ -125,7 +125,7 @@ export default function SetupScreen({ onNext }: SetupScreenProps) {
       )}
 
       <Button
-        disabled={!selected || !name.trim() || filledParticipants.length < 3}
+        disabled={!selected || !name.trim() || filledParticipants.length < 1}
         onClick={handleSubmit}
         className="mt-6"
       >
