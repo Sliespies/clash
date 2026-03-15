@@ -84,7 +84,7 @@ export default function LiveDashboard() {
       const companyNames = [...new Set([
         ...timerRows.map(r => r[0]),
         ...scoreRows.map(r => r[0]),
-      ].filter(v => v && v !== 'Company'))];
+      ].filter(v => v && v !== 'Company' && v !== 'Bedrijf'))];
 
       const data: CompanyData[] = companyNames.map((company) => {
         const { bonus, straf, totaal } = calculateStats(scoreRows, company);
