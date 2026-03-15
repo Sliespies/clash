@@ -560,7 +560,7 @@ export default function EventsScreen({
           {userName} &middot; {company}
         </div>
         <a
-          href="/leaderboard"
+          href="/live"
           target="_blank"
           rel="noopener noreferrer"
           className="p-1.5 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
