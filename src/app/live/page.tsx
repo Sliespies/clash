@@ -22,11 +22,11 @@ interface HighScoreEntry {
 const MEDAL_COLORS = ['#FFD700', '#C0C0C0', '#CD7F32'];
 
 const formatTime = (s: number) => {
-  const h = Math.floor(Math.abs(s) / 3600);
-  const m = Math.floor((Math.abs(s) % 3600) / 60);
-  const sec = Math.floor(Math.abs(s) % 60);
-  const sign = s < 0 ? '-' : '';
-  return `${sign}${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+  const clamped = Math.max(0, s);
+  const h = Math.floor(clamped / 3600);
+  const m = Math.floor((clamped % 3600) / 60);
+  const sec = Math.floor(clamped % 60);
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
 };
 
 function getTimerSeconds(c: CompanyData): number {

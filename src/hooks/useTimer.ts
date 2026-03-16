@@ -133,14 +133,12 @@ export function useTimer(company: string) {
 
     const elapsedSeconds = Math.floor((Date.now() - timerState.startTime) / 1000);
     const now = new Date().toISOString();
-    // Column D = eindtotaal (elapsed + straf - bonus) in HH:MM:SS format
-    const eindtotaalSec = totaal !== undefined ? elapsedSeconds + totaal : elapsedSeconds;
-    const abs = Math.abs(eindtotaalSec);
-    const sign = eindtotaalSec < 0 ? '-' : '';
-    const hh = String(Math.floor(abs / 3600)).padStart(2, '0');
-    const mm = String(Math.floor((abs % 3600) / 60)).padStart(2, '0');
-    const ss = String(Math.floor(abs % 60)).padStart(2, '0');
-    const eindtotaalFormatted = `${sign}${hh}:${mm}:${ss}`;
+    // Column D = eindtotaal (elapsed + straf - bonus) in HH:MM:SS format, min 0
+    const eindtotaalSec = Math.max(0, totaal !== undefined ? elapsedSeconds + totaal : elapsedSeconds);
+    const hh = String(Math.floor(eindtotaalSec / 3600)).padStart(2, '0');
+    const mm = String(Math.floor((eindtotaalSec % 3600) / 60)).padStart(2, '0');
+    const ss = String(Math.floor(eindtotaalSec % 60)).padStart(2, '0');
+    const eindtotaalFormatted = `${hh}:${mm}:${ss}`;
 
     try {
       await fetch('/api/sheets', {
