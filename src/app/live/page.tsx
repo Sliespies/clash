@@ -187,7 +187,16 @@ export default function LiveDashboard() {
     );
   }
 
-  const active = activeCompany ? companies.find(c => c.company === activeCompany) : null;
+  // Active company: from localStorage, or the one with a running timer, or the first company
+  const active = (() => {
+    if (activeCompany) {
+      const found = companies.find(c => c.company === activeCompany);
+      if (found) return found;
+    }
+    const running = companies.find(c => isRunning(c));
+    if (running) return running;
+    return companies.length > 0 ? companies[0] : null;
+  })();
 
   return (
     <div className="fixed inset-0 bg-gray-950 text-white p-6 lg:px-10 lg:py-6 flex flex-col overflow-auto">
