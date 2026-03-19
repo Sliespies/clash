@@ -35,5 +35,5 @@ export const EVENTS: GameEvent[] = [
   { name: 'PacMan', type: 'number', label: 'Score', desc: 'Voer de score in', icon: '/ghost.svg', phase: 3 },
   { name: 'Streetracket', type: 'number', label: 'Gescoorde ballen', desc: 'Voer het aantal gescoorde ballen in', icon: '/tennis-ball.svg', phase: 3, shared: true },
   // Fase 4 — Gezamenlijk
-  { name: 'Piccoo', type: 'number', label: 'Getikten', desc: 'Voer het aantal getikten in', icon: '/hand-pointing.svg', phase: 4, shared: true },
+  { name: 'Piccoo', type: 'time', label: 'Getikten', desc: 'Voer het aantal getikten in', icon: '/hand-pointing.svg', phase: 4, shared: true },
 ];
