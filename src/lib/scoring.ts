@@ -56,7 +56,7 @@ export interface HighScore {
 
 export function getHighScores(
   rows: string[][],
-  events: { name: string; type: 'time' | 'number' }[]
+  events: { name: string; type: 'time' | 'number'; lowerIsBetter?: boolean }[]
 ): Record<string, HighScore> {
   const result: Record<string, HighScore> = {};
 
@@ -70,9 +70,10 @@ export function getHighScores(
       const score = Number(row[3]);
       if (isNaN(score)) continue;
 
+      const lowerWins = event.type === 'time' || event.lowerIsBetter;
       const isBetter =
         bestScore === null ||
-        (event.type === 'time' ? score < bestScore : score > bestScore);
+        (lowerWins ? score < bestScore : score > bestScore);
 
       if (isBetter) {
         bestScore = score;

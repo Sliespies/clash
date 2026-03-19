@@ -114,7 +114,8 @@ export default function LiveDashboard() {
             const values = eventRows.map(r => Number(r[3])).filter(v => !isNaN(v));
             const names = new Set(eventRows.map(r => r[1]).filter(Boolean));
             if (values.length > 0) {
-              const best = event.type === 'time'
+              const lowerWins = event.type === 'time' || event.lowerIsBetter;
+              const best = lowerWins
                 ? Math.min(...values)
                 : Math.max(...values);
               scores[event.name] = { best, participants: names.size };
@@ -143,8 +144,9 @@ export default function LiveDashboard() {
         for (const c of data) {
           const s = c.scores[event.name];
           if (!s) continue;
+          const lowerWins = event.type === 'time' || event.lowerIsBetter;
           const isBetter = best === null ||
-            (event.type === 'time' ? s.best < best : s.best > best);
+            (lowerWins ? s.best < best : s.best > best);
           if (isBetter) {
             best = s.best;
             bestCompany = c.company;
