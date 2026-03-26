@@ -46,6 +46,7 @@ export default function LiveDashboard() {
   const [loading, setLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [, setTick] = useState(0); // force re-render every second
+  const [showAllScores, setShowAllScores] = useState(false);
 
   // Haal actief bedrijf uit localStorage (zelfde sessie als trainer login)
   useEffect(() => {
@@ -208,11 +209,23 @@ export default function LiveDashboard() {
           <img src="/logo.svg" alt="Logo" className="h-12 lg:h-14 w-auto" />
           <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Live Scorebord</h1>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-gray-300 text-sm">
-            {lastUpdate ? `Bijgewerkt ${lastUpdate.toLocaleTimeString('nl-BE')}` : ''}
-          </span>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setShowAllScores(!showAllScores)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              showAllScores
+                ? 'bg-amber-500 text-gray-950'
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+            }`}
+          >
+            Alle Scores
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-gray-300 text-sm">
+              {lastUpdate ? `Bijgewerkt ${lastUpdate.toLocaleTimeString('nl-BE')}` : ''}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -347,6 +360,104 @@ export default function LiveDashboard() {
           </table>
         </div>
       </div>
+
+      {/* Alle Scores overlay */}
+      {showAllScores && (
+        <div className="fixed inset-0 bg-gray-950/95 z-50 flex flex-col overflow-auto">
+          <div className="p-6 lg:px-10 lg:py-6 flex-1 flex flex-col">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold">Alle Scores per Bedrijf</h2>
+              <button
+                onClick={() => setShowAllScores(false)}
+                className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
+                Sluiten
+              </button>
+            </div>
+            <div className="overflow-auto flex-1">
+              <table className="w-full text-sm border-collapse">
+                <thead className="sticky top-0 bg-gray-950">
+                  <tr className="border-b border-gray-700">
+                    <th className="text-left py-3 px-3 text-gray-400 font-medium sticky left-0 bg-gray-950 z-10">Challenge</th>
+                    {companies.map(c => (
+                      <th key={c.company} className="text-center py-3 px-3 text-white font-semibold whitespace-nowrap">
+                        {c.company}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {EVENTS.map(event => {
+                    const hs = highScores[event.name];
+                    return (
+                      <tr key={event.name} className="border-b border-gray-800/50">
+                        <td className="py-2 px-3 sticky left-0 bg-gray-950 z-10">
+                          <div className="flex items-center gap-2">
+                            <img src={event.icon} alt="" className="w-4 h-4 invert opacity-80" />
+                            <span className="font-medium text-gray-200">{event.name}</span>
+                          </div>
+                        </td>
+                        {companies.map(c => {
+                          const score = c.scores[event.name];
+                          const isBest = score && hs && score.best === hs.score;
+                          return (
+                            <td key={c.company} className="text-center py-2 px-3">
+                              {score ? (
+                                <span className={`font-mono font-semibold ${isBest ? 'text-amber-400' : 'text-gray-300'}`}>
+                                  {score.best}{event.type === 'time' ? 's' : ''}
+                                </span>
+                              ) : (
+                                <span className="text-gray-600">—</span>
+                              )}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })}
+                  {/* Samenvattingsrijen */}
+                  <tr className="border-t-2 border-gray-600">
+                    <td className="py-2 px-3 sticky left-0 bg-gray-950 z-10 font-semibold text-emerald-400">Bonus</td>
+                    {companies.map(c => (
+                      <td key={c.company} className="text-center py-2 px-3 font-mono font-semibold text-emerald-400">
+                        {c.bonus}s
+                      </td>
+                    ))}
+                  </tr>
+                  <tr>
+                    <td className="py-2 px-3 sticky left-0 bg-gray-950 z-10 font-semibold text-red-400">Straf</td>
+                    {companies.map(c => (
+                      <td key={c.company} className="text-center py-2 px-3 font-mono font-semibold text-red-400">
+                        {c.straf}s
+                      </td>
+                    ))}
+                  </tr>
+                  <tr>
+                    <td className="py-2 px-3 sticky left-0 bg-gray-950 z-10 font-semibold text-gray-200">Timer</td>
+                    {companies.map(c => (
+                      <td key={c.company} className="text-center py-2 px-3 font-mono font-semibold text-gray-200">
+                        {formatTime(getTimerSeconds(c))}
+                      </td>
+                    ))}
+                  </tr>
+                  <tr className="border-t border-gray-600">
+                    <td className="py-3 px-3 sticky left-0 bg-gray-950 z-10 font-bold text-white text-base">Eindtotaal</td>
+                    {companies.map((c, i) => {
+                      const rank = i + 1;
+                      const medalColor = rank <= 3 ? MEDAL_COLORS[rank - 1] : undefined;
+                      return (
+                        <td key={c.company} className="text-center py-3 px-3 font-mono font-bold text-base" style={{ color: medalColor || '#D1D5DB' }}>
+                          {formatTime(getTimerSeconds(c) + c.totaal)}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
