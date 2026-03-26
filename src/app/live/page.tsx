@@ -265,7 +265,7 @@ export default function LiveDashboard() {
             </div>
           )}
 
-          <div className="flex-1 flex flex-col justify-evenly gap-2">
+          <div className="flex-1 flex flex-col gap-2">
             {companies.map((c, i) => {
               const rank = i + 1;
               const medalColor = rank <= 3 ? MEDAL_COLORS[rank - 1] : undefined;
