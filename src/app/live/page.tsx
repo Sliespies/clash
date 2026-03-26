@@ -375,7 +375,7 @@ export default function LiveDashboard() {
               </button>
             </div>
             <div className="overflow-auto flex-1">
-              <table className="w-full text-base border-collapse">
+              <table className="w-full text-base border-collapse h-full">
                 <thead className="sticky top-0 bg-gray-950">
                   <tr className="border-b border-gray-700">
                     <th className="text-left py-3 px-3 text-gray-400 font-medium sticky left-0 bg-gray-950 z-10">Challenge</th>
