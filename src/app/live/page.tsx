@@ -207,7 +207,7 @@ export default function LiveDashboard() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           <img src="/logo.svg" alt="Logo" className="h-12 lg:h-14 w-auto" />
-          <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Live Scorebord</h1>
+          <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Live scorebord</h1>
         </div>
         <div className="flex items-center gap-4">
           <button
@@ -218,7 +218,7 @@ export default function LiveDashboard() {
                 : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
             }`}
           >
-            Alle Scores
+            Alle scores
           </button>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -303,7 +303,7 @@ export default function LiveDashboard() {
 
         {/* Scores per challenge */}
         <div className="xl:col-span-2 flex flex-col">
-          <h2 className="text-base font-semibold text-white uppercase tracking-wide mb-3">Scores per Challenge</h2>
+          <h2 className="text-base font-semibold text-white uppercase tracking-wide mb-3">Scores per challenge</h2>
           <table className="w-full text-base flex-1">
             <thead>
               <tr className="border-b border-gray-800">
@@ -311,7 +311,7 @@ export default function LiveDashboard() {
                 {active && (
                   <th className="text-center py-2 px-3 text-gray-300 font-semibold">{active.company}</th>
                 )}
-                <th className="text-center py-2 px-3 text-amber-500 font-semibold">High Score</th>
+                <th className="text-center py-2 px-3 text-amber-500 font-semibold">High score</th>
               </tr>
             </thead>
             <tbody>
@@ -361,12 +361,12 @@ export default function LiveDashboard() {
         </div>
       </div>
 
-      {/* Alle Scores overlay */}
+      {/* Alle scores overlay */}
       {showAllScores && (
         <div className="fixed inset-0 bg-gray-950/95 z-50 flex flex-col overflow-auto">
           <div className="p-6 lg:px-10 lg:py-6 flex-1 flex flex-col">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold">Alle Scores per Bedrijf</h2>
+              <h2 className="text-2xl font-bold">Alle scores per bedrijf</h2>
               <button
                 onClick={() => setShowAllScores(false)}
                 className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
