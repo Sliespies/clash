@@ -673,7 +673,7 @@ export default function EventsScreen({
                 })}
 
                 <div>
-                  <div className="text-xs font-semibold uppercase tracking-wide mb-1.5 text-amber-600">Afsluiting</div>
+                  <div className="text-xs font-semibold uppercase tracking-wide mb-1.5 text-amber-600">Wachtwoord</div>
                   <div className="flex flex-wrap gap-2">
                     <button
                       onClick={() => selectEvent('timer')}
