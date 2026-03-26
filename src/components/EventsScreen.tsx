@@ -319,7 +319,7 @@ function TimerStopInput({
     <div className="flex flex-col items-center text-center">
       {showConfetti && <Confetti originY={window.innerHeight * 0.35} />}
       <div className="mb-3"><EventIcon icon="/timer.svg" className="text-4xl sm:text-5xl" /></div>
-      <h2 className="text-lg font-semibold text-gray-900 mb-1">Timer Stoppen</h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-1">Stop de timer!</h2>
       <p className="text-sm text-gray-400 mb-5">Voer het wachtwoord in om de timer te stoppen</p>
 
       {!allCompleted && (
@@ -680,7 +680,7 @@ export default function EventsScreen({
                       className="flex items-center gap-2 px-3.5 py-2.5 rounded-full text-left transition-all cursor-pointer border-none bg-amber-50 hover:bg-amber-100"
                     >
                       <EventIcon icon="/timer.svg" className="text-base" />
-                      <span className="text-sm font-medium text-amber-700">Timer Stoppen</span>
+                      <span className="text-sm font-medium text-amber-700">Stop de timer!</span>
                     </button>
                   </div>
                 </div>
