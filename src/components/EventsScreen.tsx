@@ -3,7 +3,7 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import gsap from 'gsap';
 import { EVENTS, PHASES, type GameEvent } from '@/lib/events';
-import { calculateStats, getHighScores, type Stats, type HighScore } from '@/lib/scoring';
+import { calculateStats, getHighScores, capBonus, type Stats, type HighScore } from '@/lib/scoring';
 import { useScoreEntry } from '@/hooks/useScoreEntry';
 import { useTimer } from '@/hooks/useTimer';
 import { Button, Input, ErrorMessage, StatBox, EventIcon } from '@/components/ui';
@@ -447,12 +447,13 @@ export default function EventsScreen({
         // Timer tab might not exist
       }
 
+      const effectiveBonus = capBonus(baseStats.bonus, timerSeconds, baseStats.straf);
       const newStats = {
-        bonus: baseStats.bonus,
+        bonus: effectiveBonus,
         straf: baseStats.straf,
         timer: timerSeconds,
-        totaal: baseStats.straf - baseStats.bonus,
-        finalTotaal: timerSeconds + baseStats.straf - baseStats.bonus,
+        totaal: baseStats.straf - effectiveBonus,
+        finalTotaal: timerSeconds + baseStats.straf - effectiveBonus,
       };
       setStats(newStats);
       setHighScores(getHighScores(rows, EVENTS));

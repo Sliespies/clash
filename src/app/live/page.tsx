@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { EVENTS } from '@/lib/events';
-import { calculateStats } from '@/lib/scoring';
+import { calculateStats, capBonus } from '@/lib/scoring';
 
 interface CompanyData {
   company: string;
@@ -88,7 +88,7 @@ export default function LiveDashboard() {
       ].filter(v => v && v !== 'Company' && v !== 'Bedrijf' && v !== 'Bedrijfsnaam'))];
 
       const data: CompanyData[] = companyNames.map((company) => {
-        const { bonus, straf, totaal } = calculateStats(scoreRows, company);
+        const { bonus: rawBonus, straf } = calculateStats(scoreRows, company);
 
         const timerRow = timerRows.find(r => r[0] === company);
         let startTime: number | null = null;
@@ -106,6 +106,11 @@ export default function LiveDashboard() {
             }
           }
         }
+
+        // Apply 80% bonus cap using current timer value
+        const timerSec = stoppedElapsed ?? (startTime ? Math.floor((Date.now() - startTime) / 1000) : 0);
+        const bonus = capBonus(rawBonus, timerSec, straf);
+        const totaal = straf - bonus;
 
         // Per-event scores for this company
         const scores: Record<string, { best: number; participants: number }> = {};

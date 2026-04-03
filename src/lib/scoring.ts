@@ -48,6 +48,12 @@ export function calculateStats(rows: string[][], company: string): Stats {
   return { bonus, straf, totaal };
 }
 
+/** Apply the 80% cap: bonus can reduce at most 80% of (timer + straf). */
+export function capBonus(bonus: number, timerSeconds: number, straf: number): number {
+  const maxBonus = Math.floor((timerSeconds + straf) * 0.8);
+  return Math.min(bonus, maxBonus);
+}
+
 export interface HighScore {
   score: number;
   name: string;
