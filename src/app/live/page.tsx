@@ -239,6 +239,21 @@ export default function LiveDashboard() {
         <div className="xl:col-span-1 flex flex-col">
           <h2 className="text-base font-semibold text-white uppercase tracking-wide mb-3">Klassement</h2>
 
+          <div className="bg-gray-900/60 rounded-xl px-4 py-3 mb-3 text-xs text-gray-300 leading-relaxed space-y-1.5">
+            <div>
+              <span className="text-amber-400 font-semibold">Eindtijd</span> = ⏱️ stopwatch <span className="text-red-400">+ straftijd</span> <span className="text-emerald-400">− bonustijd</span>
+            </div>
+            <div>
+              <span className="text-red-400 font-medium">Straftijd</span> <span className="text-gray-400">(telt op):</span> Fietsen, Blazepods, Piccoo
+            </div>
+            <div>
+              <span className="text-emerald-400 font-medium">Bonustijd</span> <span className="text-gray-400">(trekt af):</span> Roeien, Axethrowing, VR, Icaros, Firewall, PacMan, Streetracket, Copycat
+            </div>
+            <div className="text-gray-400 italic pt-0.5">
+              Bonustijd verlaagt de eindtijd met maximaal 80%.
+            </div>
+          </div>
+
           {/* Timer & Stats voor het actieve bedrijf */}
           {active && (isRunning(active) || getTimerSeconds(active) > 0) && (
             <div className="bg-gray-900 border border-amber-500/30 rounded-xl p-4 mb-3 flex items-center gap-5">
