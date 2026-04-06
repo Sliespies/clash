@@ -94,6 +94,10 @@ function ScoreInput({
       setError('Voer een geldig getal in.');
       return;
     }
+    if (event.max !== undefined && Number(value) > event.max) {
+      setError(`Maximaal ${event.max} toegelaten.`);
+      return;
+    }
 
     if (needsParticipants) {
       // Save one row per selected participant
@@ -183,13 +187,21 @@ function ScoreInput({
           ref={inputRef}
           type="number"
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => {
+            const v = e.target.value;
+            if (event.max !== undefined && v !== '' && Number(v) > event.max) {
+              setValue(String(event.max));
+            } else {
+              setValue(v);
+            }
+          }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') onSave();
             if (e.key === 'Escape') onBack();
           }}
           placeholder="0"
           min="0"
+          max={event.max}
           inputMode="numeric"
           disabled={loading}
           className="!text-2xl !h-14 text-center font-medium"
